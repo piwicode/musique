@@ -18,10 +18,20 @@ spkr_depth = 24;
 spkr_magnet_r = 20;
 spkr_adjustment = .2;
 
+hole_radius = 2.9 / 2; // Measure of screw fillet radius.
+nut_height = 1; // TO BE MEASURED
+nut_d_min = 5.41;
+nut_d_max = 6;
+
 module clone(translations) {
   for(translation = translations) {
     translate(translation) children(); 
   }  
+}
+
+module yz_symetry_clone() {
+  mirror([1, 0, 0]) children();
+  children();   
 }
 
 // xr = [start, increment, end ]
@@ -167,6 +177,7 @@ union() {
   }  
 }
 
+//---------------------------------
 // Box bottom side.
 translate([-size_x/2, 0, 0])
 cube([size_x, thickness, size_z]);
@@ -181,6 +192,7 @@ cube([thickness, size_y, size_z]);
 // LR6 Battery diameter is 14,2 mm
 // 4 LR6 case: 61.9 mm x 57.2 mm x 15 mm
 case_height = 58;
+case_width = 62;
 case_depth = 15 + /*margin=*/.5 + thickness;
 
 // --------------------------------
@@ -209,7 +221,36 @@ difference() {
   cube([peg_hole_width, size_y, peg_hole_thickness]);
   }
 
+// Nut holder
+translate([0,0,0]) {
+  nut_holder_thckness = 4;
+  nut_holder_hole_height = 8;
+  
+  
+  // computed
+  nut_holder_size_x = nut_d_min + 2 * nut_holder_thckness;
+  nut_holder_size_y = nut_holder_hole_height + hole_radius + 2;
+  nut_holder_size_z = nut_height + 2 * nut_holder_thckness;
+  
+  yz_symetry_clone()
+  translate([case_width/2, +thickness, size_z - nut_holder_size_z])
+  difference() {
+    cube([nut_holder_size_x, nut_holder_size_y, nut_holder_size_z]);
+    translate([nut_holder_size_x/2, nut_holder_hole_height, +epsilon])
+    linear_extrude(nut_holder_size_z + 2 * epsilon)
+    square(hole_radius * 2, center = true);
 
+    translate([nut_holder_size_x / 2, nut_holder_thckness, nut_holder_thckness])
+    
+    linear_extrude(nut_height)
+    rotate([0, 0, 90])
+    hull() {
+      circle($fn=6, r=nut_d_max/2);
+      translate([8, 0, 0])
+      circle($fn=6, r=nut_d_max/2);
+    }
+  }
+}
 top_plate_width = /*80*/ size_x - 2 * thickness;
 top_plate_thickness = 2;
 top_support = 2;
@@ -290,12 +331,8 @@ placed_nut_holder();
 
 module nut_holder() {
   $fn = 10;
-  hole_radius = 2.9 / 2; // Measure of screw fillet radius.
   hole_dist = 7; // Distance between the hole and the border.
   thickness = 1; // Thickness of the layer on top of the nut.
-  nut_height = 1; // TO BE MEASURED
-  nut_d_min = 5.41;
-  nut_d_max = 6;
   translate([0, -nut_height - thickness, 0])
   rotate([90, 0, 0])
   union() { 
