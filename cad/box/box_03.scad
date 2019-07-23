@@ -2,6 +2,7 @@
 //Thickness of the wood.
 thickness = 3;
 e = 1;
+epsilon = .01;
 
 // Exterior dimensions of the box.
 size_x = 96;
@@ -17,24 +18,10 @@ spkr_depth = 24;
 spkr_magnet_r = 20;
 spkr_adjustment = .2;
 
-front = [[0, thickness, 0 ], [90, 0, 0]];
-back =  [[size_x, size_y - thickness, 0], [90, 0, 180]];
-top =   [[0, 0, size_z - thickness], [0, 0, 0]];
-bottom = [[size_x, 0, thickness],[0, 180, 0]];
-left =  [[thickness, size_y, 0], [90, 0, 270]];
-right = [[size_x - thickness, 0, 0], [90, 0, 90]];
-
-
-module plate(
-  offset=[0,0,0], 
-  face=[[0,0,0], [0,0,0]]) {
-  echo("totot");
-
-  translate(offset)
-  translate(face[0])
-  rotate(face[1])
-  color("red")
-  children();
+module clone(translations) {
+  for(translation = translations) {
+    translate(translation) children(); 
+  }  
 }
 
 // xr = [start, increment, end ]
@@ -98,7 +85,7 @@ module hexagon_pattern(bw = 1, hw = 6) {
 }
 
 
-// Front face.
+// Box front side.
 union() {
   $fn = 20; // 80 for final
   h = sqrt(spkr_c * spkr_c - spkr_r * spkr_r);
@@ -180,7 +167,7 @@ union() {
   }  
 }
 
-// Bottom side.
+// Box bottom side.
 translate([-size_x/2, 0, 0])
 cube([size_x, thickness, size_z]);
 
@@ -196,19 +183,31 @@ cube([thickness, size_y, size_z]);
 case_height = 58;
 case_depth = 15 + /*margin=*/.5 + thickness;
 
-// Case back.
-translate([-size_x / 2, 0, size_z])
-rotate([90, 0, 90]) 
-linear_extrude(size_x)
-polygon([
-  [0, -case_depth], 
-  [case_height + thickness, -case_depth], 
-  [case_height + thickness + case_depth, 0],
-  [size_y, 0],
-  [size_y, -thickness],
-  [case_height + thickness + case_depth, - thickness],  
-  [case_height + thickness, -case_depth - thickness], 
-  [0, -case_depth - thickness]]);
+// --------------------------------
+// Box back side.
+difference() {
+  // Face.
+  translate([-size_x / 2, 0, size_z])
+  rotate([90, 0, 90]) 
+  linear_extrude(size_x)
+  polygon([
+    [0, -case_depth], 
+    [case_height + thickness, -case_depth], 
+    [case_height + thickness + case_depth, 0],
+    [size_y, 0],
+    [size_y, -thickness],
+    [case_height + thickness + case_depth, - thickness],  
+    [case_height + thickness, -case_depth - thickness], 
+    [0, -case_depth - thickness]]);
+  // Peg holes.
+  peg_hole_thickness = thickness * 1.5;
+  peg_hole_width = 10;
+  get_hole_h_spacing = 25; // Distance between the two peg holes.
+
+  clone([[-get_hole_h_spacing,0,0], [0,0,0], [get_hole_h_spacing,0,0]])
+  translate([-peg_hole_width / 2, 0, size_z - thickness - peg_hole_thickness - epsilon])
+  cube([peg_hole_width, size_y, peg_hole_thickness]);
+  }
 
 
 top_plate_width = /*80*/ size_x - 2 * thickness;
@@ -260,28 +259,14 @@ union() {
 lp_h = 18;
 lp_r = 70 / 2;
 
-
-color("Violet")
-translate([0, size_y - top_plate_thickness, size_z / 2]) 
+%translate([0, size_y - top_plate_thickness, size_z / 2]) 
 rotate([90, 0, 0])
 cylinder(r1 = lp_r, r2 = lp_r, h = lp_h);
 
 
 // Bateries holder bounding shape.
-color("Violet")
-translate([-61.9/2, thickness, size_z - case_depth])
+%translate([-61.9/2, thickness, size_z - case_depth])
 cube([61.9, 57.2, 15.0]);
-
-
-
-module nut_support_profile(hole_d, radius) {
-  square(hole_d + radius);
-  // intersection() {
-  //  offset(delta=radius, chamfer = true)
-  //  square(hole_d);
-  //  square(hole_d + radius);
-  //}
-}
 
 // Nut holder
 screw_head_height = 3.05; // Measure.
