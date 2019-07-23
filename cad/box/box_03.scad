@@ -1,4 +1,5 @@
-//module plate(
+use <../top_cover/2019-07-22 top_cover - attempt 2.scad>
+
 //Thickness of the wood.
 thickness = 3;
 e = 1;
@@ -22,6 +23,12 @@ hole_radius = 2.9 / 2; // Measure of screw fillet radius.
 nut_height = 1; // TO BE MEASURED
 nut_d_min = 5.41;
 nut_d_max = 6;
+
+screw_head_radius = 5.5 / 2; // Measure.
+screw_head_height = 3.05; // Measure.
+screw_fillet_radius =  2.9 / 2; // Measure.
+
+pocket_thickness = 1;
 
 module clone(translations) {
   for(translation = translations) {
@@ -226,14 +233,13 @@ translate([0,0,0]) {
   nut_holder_thckness = 4;
   nut_holder_hole_height = 8;
   
-  
   // computed
   nut_holder_size_x = nut_d_min + 2 * nut_holder_thckness;
   nut_holder_size_y = nut_holder_hole_height + hole_radius + 2;
   nut_holder_size_z = nut_height + 2 * nut_holder_thckness;
   
   yz_symetry_clone()
-  translate([case_width/2, +thickness, size_z - nut_holder_size_z])
+  translate([case_width/2, +thickness, size_z - nut_holder_size_z - thickness - screw_head_height - pocket_thickness])
   difference() {
     cube([nut_holder_size_x, nut_holder_size_y, nut_holder_size_z]);
     translate([nut_holder_size_x/2, nut_holder_hole_height, +epsilon])
@@ -251,6 +257,22 @@ translate([0,0,0]) {
     }
   }
 }
+
+// Back support
+translate([-size_x / 2, 0, size_z - thickness * 2])
+difference() {
+  back_support_size = 2;
+  // Body
+  cube([size_x, size_z, thickness * 2]);
+  translate([thickness + back_support_size, thickness + back_support_size, -epsilon])
+  // Hole
+  cube([size_x - thickness * 2 - back_support_size * 2, size_z, thickness * 2 + epsilon * 2]);
+  //
+  translate([thickness, thickness, thickness])
+  cube([size_x - thickness * 2, size_z, thickness + epsilon]);
+}
+// ---------------------------------------------------
+// Box top side
 top_plate_width = /*80*/ size_x - 2 * thickness;
 top_plate_thickness = 2;
 top_support = 2;
