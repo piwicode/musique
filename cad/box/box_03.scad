@@ -273,8 +273,78 @@ translate([-61.9/2, thickness, size_z - case_depth])
 cube([61.9, 57.2, 15.0]);
 
 
-!union() {
 
-linear_extrude(height = 10, scale = 0)
-square(5);  
+module nut_support_profile(hole_d, radius) {
+  square(hole_d + radius);
+  // intersection() {
+  //  offset(delta=radius, chamfer = true)
+  //  square(hole_d);
+  //  square(hole_d + radius);
+  //}
+}
+
+// Nut holder
+screw_head_height = 3.05; // Measure.
+screw_pocket_thickness = 1;
+
+module placed_nut_holder() {
+  translate([-size_x / 2 + thickness, size_y - screw_pocket_thickness - screw_head_height, thickness])
+  nut_holder();
+}
+placed_nut_holder();
+mirror([1,0,0])
+placed_nut_holder();
+
+translate([0,0,size_y])
+mirror([0,0,1])
+placed_nut_holder();
+translate([0,0,size_y])
+mirror([0,0,1])
+mirror([1,0,0])
+placed_nut_holder();
+
+module nut_holder() {
+  $fn = 10;
+  hole_radius = 2.9 / 2; // Measure of screw fillet radius.
+  hole_dist = 7; // Distance between the hole and the border.
+  thickness = 1; // Thickness of the layer on top of the nut.
+  nut_height = 1; // TO BE MEASURED
+  nut_d_min = 5.41;
+  nut_d_max = 6;
+  translate([0, -nut_height - thickness, 0])
+  rotate([90, 0, 0])
+  union() { 
+    // Top layer inner band 
+    support_width = hole_dist + nut_d_min / 2 + 1;
+    translate([0, 0, -nut_height - thickness])
+    cube([hole_dist - hole_radius, support_width, thickness]);
+    // Top layer outer band
+    translate([support_width, 0, -nut_height])
+    rotate([0,180,0])
+    cube([support_width - hole_radius - hole_dist, support_width, thickness]);
+    
+    difference() {
+      // Pyramid and nud body holder.
+      union() {
+        linear_extrude(height = support_width, scale = 0)
+        square(support_width);
+
+        translate([0, 0, -nut_height])
+        linear_extrude(height=nut_height)
+        square(support_width);
+      }
+
+      // Screw hole.
+      translate([hole_dist, hole_dist, -nut_height-1])
+      cylinder(r1 = hole_radius, r2 = hole_radius, h = hole_dist + nut_height + 1);
+
+      // Nut placement.
+      translate([0,0,-nut_height - 1])
+      linear_extrude(height=nut_height + 1)
+      hull() {
+        translate([hole_dist, hole_dist, 0])circle($fn=6, r=nut_d_max/2);
+        translate([hole_dist + 3, hole_dist, 0])circle($fn=6, r=nut_d_max/2);
+      }
+    }
+  }
 }
