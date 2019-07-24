@@ -1,4 +1,4 @@
-use <../top_cover/2019-07-22 top_cover - attempt 2.scad>
+use <top_cover.scad>
 
 //Thickness of the wood.
 thickness = 3;
