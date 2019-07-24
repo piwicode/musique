@@ -20,39 +20,6 @@ nut_d_max = 6 + lose;
 
 pocket_thickness = 1;
 
-module clone(translations) {
-  for(translation = translations) {
-    translate(translation) children(); 
-  }  
-}
-
-module yz_symetry_clone() {
-  mirror([1, 0, 0]) children();
-  children();   
-}
-
-// xr = [start, increment, end ]
-// yr = [start, increment, end ]
-module pattern(xr, yr, stride) {
-  for(y = [yr[0]: yr[1] * len(stride) : yr[2]]) {
-    for(si = [0 : len(stride)]) {
-      for(x = [xr[0] - stride[si] : xr[1] : xr[2]]) {
-        translate([x, y + si * yr[1]]) {
-          children();
-        }
-      }
-    }
-  }
-}
-
-
-module circular_pattern(r, xi, yi, stride) {
-  intersection(){
-    circle(r);
-    pattern(xr = [-r, xi, r], yr = [-r, yi, r], stride=stride)
-    children();
-  }
-}
 
 // hw: horizontal width of a hole.
 // bw: bars widh of the separation between the holes.
@@ -215,7 +182,7 @@ difference() {
     [case_height + thickness, -case_depth - thickness], 
     [0, -case_depth - thickness]]);
   
-  clone([[-get_hole_h_spacing,0,0], [0,0,0], [get_hole_h_spacing,0,0]])
+  translate_clone([[-get_hole_h_spacing,0,0], [0,0,0], [get_hole_h_spacing,0,0]])
   translate([-peg_hole_width / 2, 0, size_z - thickness - peg_hole_thickness - epsilon])
   cube([peg_hole_width, size_y, peg_hole_thickness]);
 }
@@ -265,7 +232,7 @@ module back_cover() {
     screw_pocket(position=[screw_pocked_distance, screw_pocked_distance])
     screw_pocket(position=[cover_size_x - screw_pocked_distance, screw_pocked_distance]) union(){
       // 3 Pegs on the top edge.
-      clone([[-get_hole_h_spacing,0,0], [0,0,0], [get_hole_h_spacing,0,0]])
+      translate_clone([[-get_hole_h_spacing,0,0], [0,0,0], [get_hole_h_spacing,0,0]])
       translate([cover_size_x / 2 - peg_hole_width / 2 + lose, 
       cover_size_y - cover_thickness * 2, 0])
       rotate([45, 0 ,0])

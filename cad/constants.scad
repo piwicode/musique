@@ -32,7 +32,41 @@ top_screw_pocket_distance = 38;
 
 // ----------------------------------------
 // Common functions
+
 module rounded_square(width, radius) {
   offset(r=radius) 
   square(width - radius * 2, center=true);
+}
+
+module translate_clone(translations) {
+  for(translation = translations) {
+    translate(translation) children(); 
+  }  
+}
+
+module yz_symetry_clone() {
+  mirror([1, 0, 0]) children();
+  children();   
+}
+
+// xr = [start, increment, end ]
+// yr = [start, increment, end ]
+module pattern(xr, yr, stride) {
+  for(y = [yr[0]: yr[1] * len(stride) : yr[2]]) {
+    for(si = [0 : len(stride)]) {
+      for(x = [xr[0] - stride[si] : xr[1] : xr[2]]) {
+        translate([x, y + si * yr[1]]) {
+          children();
+        }
+      }
+    }
+  }
+}
+
+module circular_pattern(r, xi, yi, stride) {
+  intersection(){
+    circle(r);
+    pattern(xr = [-r, xi, r], yr = [-r, yi, r], stride=stride)
+    children();
+  }
 }
