@@ -26,7 +26,7 @@ module pocket(position, pocket_radius, depth, hole_radius, slope, thickness) {
 
 module screw_pocket(position) {
   pocket(
-    slope = .4, // Two rings.
+    slope = .4, // Two pint layers.
     pocket_radius = 5.5 / 2, // Measure screw head radius.
     depth = 3.05, // Measure screw head height.
     hole_radius = 2.9 / 2, // Measure screw fillet radius.

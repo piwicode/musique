@@ -20,6 +20,11 @@ screw_head_height = 3.05; // Measure.
 screw_fillet_radius =  2.9 / 2; // Measure.
 
 screw_pocket_thickness = 1; // Thickness of the botton of a screw pocket.
+
+nut_height = 1 + lose; // TO BE MEASURED
+nut_d_min = 5.41 + tight;
+nut_d_max = 6 + lose;
+
 // ----------------------------------------
 // Top
 top_cover_thickness = 2;

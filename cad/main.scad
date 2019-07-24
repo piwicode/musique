@@ -7,10 +7,6 @@ use <front_side.scad>
 // This is not a functionnal adjustment.
 hole_radius = 2.9 / 2 + lose / 2; 
 
-nut_height = 1 + lose; // TO BE MEASURED
-nut_d_min = 5.41 + tight;
-nut_d_max = 6 + lose;
-
 front_side();
 
 //---------------------------------
