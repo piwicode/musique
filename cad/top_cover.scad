@@ -1,13 +1,6 @@
 include <constants.scad>
 
-module pocket(
-  position=[0,0,0],
-  pocket_radius = 15/2,
-  depth = 8,
-  hole_radius = 9/2,
-  slope = 1,
-  thickness=top_cover_thickness) {
-
+module pocket(position, pocket_radius, depth, hole_radius, slope, thickness) {
   difference() {
     union() {
       children();
@@ -16,6 +9,7 @@ module pocket(
                r2=pocket_radius + thickness,
                h=depth + thickness);
     }
+
     translate(position)
     rotate_extrude(convexity=10) {
       polygon(points = [
@@ -46,45 +40,37 @@ module screw_pocket(position) {
     depth = 3.05, // Measure screw head height.
     hole_radius = 2.9 / 2, // Measure screw fillet radius.
     position = position,
-    thickness = 1)
+    thickness = screw_pocket_thickness)
   children();
 }
 
+module push_button_pocket(position) {
+  pocket(
+    slope = pb_slope,
+    pocket_radius = pb_pocket_radius,
+    depth = 1.2,
+    hole_radius = pb_hole_radius,
+    thickness=top_cover_thickness,
+    position = position)
+  children();
+}
 module top_cover() {
 screw_pocket(position = [top_screw_pocket_distance, top_screw_pocket_distance])
 screw_pocket(position = [-top_screw_pocket_distance, top_screw_pocket_distance])
 screw_pocket(position = [-top_screw_pocket_distance, -top_screw_pocket_distance])
 screw_pocket(position = [top_screw_pocket_distance, -top_screw_pocket_distance])
-pocket(
-  slope = pb_slope,
-  pocket_radius = pb_pocket_radius,
-  depth = 1.2,
-  hole_radius = pb_hole_radius, 
-  position = [cos(delta_angle*-1.5)*d, sin(delta_angle*-1.5)*d, 0])
-pocket(
-  slope = pb_slope,
-  pocket_radius = pb_pocket_radius,
-  depth = 1.2,
-  hole_radius = pb_hole_radius, 
-  position = [cos(delta_angle*-.5)*d, sin(delta_angle*-.5)*d, 0])
-pocket(
-  slope = pb_slope,
-  pocket_radius = pb_pocket_radius,
-  depth = 1.2,
-  hole_radius = pb_hole_radius, 
-  position = [cos(delta_angle*.5)*d, sin(delta_angle*.5)*d, 0])
-pocket(
-  slope = pb_slope,
-  pocket_radius = pb_pocket_radius,
-  depth = 1.2,
-  hole_radius = pb_hole_radius, 
-  position = [cos(delta_angle*1.5)*d, sin(delta_angle*1.5)*d, 0])
+
+push_button_pocket(position = [cos(delta_angle*-1.5)*d, sin(delta_angle*-1.5)*d, 0])
+push_button_pocket(position = [cos(delta_angle*-.5)*d, sin(delta_angle*-.5)*d, 0])
+push_button_pocket(position = [cos(delta_angle*.5)*d, sin(delta_angle*.5)*d, 0])
+push_button_pocket(position = [cos(delta_angle*1.5)*d, sin(delta_angle*1.5)*d, 0])
 
 pocket(
   position = [0, 0, 0],
   pocket_radius = 8.2,  // knob radius 8 -> 8.2
   depth = 9, // depth 8 -> 9
   hole_radius = 4.7, // 4.5 -> 4.7
+  thickness=top_cover_thickness,
   slope = 1)
 linear_extrude(top_cover_thickness) 
 rounded_square(width=top_cover_width, radius=top_cover_corner_r);

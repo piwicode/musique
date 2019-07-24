@@ -18,6 +18,8 @@ thickness = 3;
 screw_head_radius = 5.5 / 2; // Measure.
 screw_head_height = 3.05; // Measure.
 screw_fillet_radius =  2.9 / 2; // Measure.
+
+screw_pocket_thickness = 1; // Thickness of the botton of a screw pocket.
 // ----------------------------------------
 // Top
 top_cover_thickness = 2;
