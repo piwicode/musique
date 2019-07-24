@@ -4,7 +4,6 @@ use <top_cover.scad>
 //Thickness of the wood.
 thickness = 3;
 e = 1;
-epsilon = .01;
 
 // Exterior dimensions of the box.
 size_x = 96;
