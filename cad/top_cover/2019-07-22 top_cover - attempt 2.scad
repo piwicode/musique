@@ -1,9 +1,9 @@
-$fn = 40;
+$fn = 20;
 thickness = 2;
 e = 1;
 top_plate_width = 90;
 
-module top_cover() {
+module top_cover_plate() {
   corner_radius = 4;
   
   linear_extrude(thickness) {
@@ -68,6 +68,7 @@ module screw_pocket(position) {
 
 screw_pocked_distance = 38;
 
+module top_cover() {
 screw_pocket(position = [screw_pocked_distance, screw_pocked_distance])
 screw_pocket(position = [-screw_pocked_distance, screw_pocked_distance])
 screw_pocket(position = [-screw_pocked_distance, -screw_pocked_distance])
@@ -103,4 +104,7 @@ pocket(
   depth = 9, // depth 8 -> 9
   hole_radius = 4.7, // 4.5 -> 4.7
   slope = 1)
+top_cover_plate();
+}
+
 top_cover();

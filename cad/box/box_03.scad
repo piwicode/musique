@@ -110,7 +110,6 @@ module hexagon_pattern(bw = 1, hw = 6) {
 
 // Box front side.
 union() {
-  $fn = 20; // 80 for final
   h = sqrt(spkr_c * spkr_c - spkr_r * spkr_r);
   
   difference() {
@@ -216,7 +215,7 @@ peg_hole_thickness = thickness * 1.5;
 peg_hole_width = 10;
 // TODO: rename peg_hole_h_spacing
 get_hole_h_spacing = 25; // Distance between the two peg holes.
-  
+
 difference() {
   // Face.
   translate([-size_x / 2, 0, size_z])
@@ -235,12 +234,12 @@ difference() {
   clone([[-get_hole_h_spacing,0,0], [0,0,0], [get_hole_h_spacing,0,0]])
   translate([-peg_hole_width / 2, 0, size_z - thickness - peg_hole_thickness - epsilon])
   cube([peg_hole_width, size_y, peg_hole_thickness]);
-  }
+}
 
-// Nut holder
+// Back nut holder
 translate([0,0,0]) {
   nut_holder_thckness = 4;
-  nut_holder_hole_height = 8;
+  nut_holder_hole_height = 7;
   
   // computed
   nut_holder_size_x = nut_d_min + 2 * nut_holder_thckness;
@@ -248,7 +247,8 @@ translate([0,0,0]) {
   nut_holder_size_z = nut_height + 2 * nut_holder_thckness;
   
   yz_symetry_clone()
-  translate([case_width/2, +thickness, size_z - nut_holder_size_z - thickness - screw_head_height - pocket_thickness])
+  // TODO: replace 7 with screw_pocked_distance
+  translate([-size_x / 2 - nut_holder_size_x/2 +thickness + 7, thickness, size_z - nut_holder_size_z - thickness - screw_head_height - pocket_thickness])
   difference() {
     cube([nut_holder_size_x, nut_holder_size_y, nut_holder_size_z]);
     translate([nut_holder_size_x/2, nut_holder_hole_height, +epsilon])
@@ -269,21 +269,39 @@ translate([0,0,0]) {
 
 // ---------------------------------------
 // Back cover
-translate([0, 0, 0]) {
+
+module back_cover() {
+  // Parameters
   cover_thickness = thickness;
   cover_size_x = size_x - thickness * 2;
-  cover_size_y = case_height + case_depth + thickness;
-  screw_pocked_distance = 7; // distance to the border.
-  screw_pocket(position=[screw_pocked_distance, screw_pocked_distance])
-  screw_pocket(position=[cover_size_x - screw_pocked_distance, screw_pocked_distance])
-  difference() {
-    cube([cover_size_x, cover_size_y, thickness]);
+  cover_size_y = case_height + case_depth + thickness - thickness;
+  // Computed parameters
+  translate([-cover_size_x/2, 0, 0]) {
+    screw_pocked_distance = 7; // distance to the border.
+    screw_pocket(position=[screw_pocked_distance, screw_pocked_distance])
+    screw_pocket(position=[cover_size_x - screw_pocked_distance, screw_pocked_distance]) union(){
+      // 3 Pegs on the top edge.
+      clone([[-get_hole_h_spacing,0,0], [0,0,0], [get_hole_h_spacing,0,0]])
+      translate([cover_size_x / 2 - peg_hole_width / 2 + lose, 
+      cover_size_y - cover_thickness * 2, 0])
+      rotate([45, 0 ,0])
+      cube([peg_hole_width - lose * 2, 7, thickness]);
 
-    translate([-epsilon, cover_size_y - thickness - epsilon, + thickness + epsilon])
-    rotate([-45, 0, 0])
-    cube([cover_size_x + 2 * epsilon, thickness * 2, thickness]);
+      difference() {
+        // Back cover Body.
+        cube([cover_size_x, cover_size_y, thickness]);
+        
+        // 45 deg cut on the top edge.
+        translate([-epsilon, cover_size_y - thickness - epsilon, + thickness + epsilon])
+        rotate([-45, 0, 0])
+        cube([cover_size_x + 2 * epsilon, thickness * 2, thickness]);
+      }
+    }
   }
 }
+translate([0, thickness, size_z])
+rotate([0,180, 0])
+#back_cover();
 
 // Back support
 translate([-size_x / 2, 0, size_z - thickness * 2])
@@ -344,6 +362,9 @@ union() {
     linear_extrude(size_x) polygon([[0, 0], [d, 0], [d, -t], [0, -d - t]]); 
   }
 }
+translate([0, size_y, top_plate_width/2 + thickness])
+rotate([90,-90,0])
+#top_cover();
 
 // Lilypad bounding shape.
 lp_h = 18;
@@ -380,7 +401,7 @@ mirror([1,0,0])
 placed_nut_holder();
 
 module nut_holder() {
-  $fn = 10;
+
   hole_dist = 7; // Distance between the hole and the border.
   thickness = 1; // Thickness of the layer on top of the nut.
   translate([0, -nut_height - thickness, 0])
@@ -398,7 +419,7 @@ module nut_holder() {
     difference() {
       // Pyramid and nud body holder.
       union() {
-        linear_extrude(height = support_width, scale = 0)
+        linear_extrude(height = support_width, scale = [0, 1])
         square(support_width);
 
         translate([0, 0, -nut_height])
@@ -423,7 +444,7 @@ module nut_holder() {
 
 
 // Testcase
-!translate([0,0,0]){
+module test_case_1() {
   nut_holder();
   
   translate([-thickness, -20 + thickness, -thickness])
