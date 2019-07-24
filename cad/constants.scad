@@ -15,8 +15,13 @@ size_z = 96;
 thickness = 3;
 
 // ----------------------------------------
+screw_head_radius = 5.5 / 2; // Measure.
+screw_head_height = 3.05; // Measure.
+screw_fillet_radius =  2.9 / 2; // Measure.
+// ----------------------------------------
 // Top
 top_cover_thickness = 2;
+top_support_width = 2;
 
 // Dimmension for the square shaped top cover
 top_cover_width = 90;

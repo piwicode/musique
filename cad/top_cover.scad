@@ -39,10 +39,6 @@ pb_depth = 1.2; // 1. - > 1.2 (to compensate slope)
 delta_angle = 46;
 d = 26;
 
-screw_head_radius = 5.5 / 2; // Measure.
-screw_head_height = 3.05; // Measure.
-screw_fillet_radius =  2.9 / 2; // Measure.
-
 module screw_pocket(position) {
   pocket(
     slope = .4, // Two rings.

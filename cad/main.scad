@@ -18,10 +18,6 @@ nut_height = 1 + lose; // TO BE MEASURED
 nut_d_min = 5.41 + tight;
 nut_d_max = 6 + lose;
 
-screw_head_radius = 5.5 / 2; // Measure.
-screw_head_height = 3.05; // Measure.
-screw_fillet_radius =  2.9 / 2; // Measure.
-
 pocket_thickness = 1;
 
 module clone(translations) {
@@ -306,7 +302,7 @@ difference() {
 }
 // ---------------------------------------------------
 // Box top side
-top_support = 2;
+
 
 // Top plate
 translate([0, size_y, size_z/2])
@@ -321,26 +317,26 @@ translate([0, size_y - top_cover_thickness, 0])
 union() {
   // Left support.
   translate([size_x / 2, 0, 0]) {
-    d = (size_x - top_cover_width) / 2 + top_support;
+    d = (size_x - top_cover_width) / 2 + top_support_width;
     t = thickness;
     linear_extrude(size_z) polygon([[0, 0], [-d, 0], [-d, -t], [0, -d - t]]);
   }
   // Right support.
   translate([-size_x / 2 , 0, 0]) {
-    d = (size_x - top_cover_width) / 2 + top_support;
+    d = (size_x - top_cover_width) / 2 + top_support_width;
     t = thickness;
     linear_extrude(size_z) polygon([[0, 0], [d, 0], [d, -t], [0, -d - t]]);
   }
   // Front support.
   translate([-size_x / 2, 0, 0]) {
-    d = (size_z - top_cover_width) / 2 + top_support;
+    d = (size_z - top_cover_width) / 2 + top_support_width;
     t = thickness;
     rotate([0, 90, 0])
     linear_extrude(size_x) polygon([[0, 0], [-d, 0], [-d, -t], [-t , -d], [0, -d]]);
   }
   // Back support.
   translate([-size_x / 2, 0, size_z]) {
-    d = (size_z - top_cover_width) / 2 + top_support;
+    d = (size_z - top_cover_width) / 2 + top_support_width;
     t = thickness;
     rotate([0, 90, 0])
     linear_extrude(size_x) polygon([[0, 0], [d, 0], [d, -t], [0, -d - t]]); 
