@@ -1,12 +1,13 @@
+use <constants.scad>
 $fn = 20;
-thickness = 2;
+top_cover_thickness = 2;
 e = 1;
 top_plate_width = 90;
 
 module top_cover_plate() {
   corner_radius = 4;
   
-  linear_extrude(thickness) {
+  linear_extrude(top_cover_thickness) {
     offset(r=corner_radius) 
     square(top_plate_width - corner_radius * 2, center=true);
   }
@@ -18,7 +19,7 @@ module pocket(
   depth = 8,
   hole_radius = 9/2,
   slope = 1,
-  thickness=thickness) {
+  thickness=top_cover_thickness) {
 
   difference() {
     union() {
