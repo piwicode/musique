@@ -1,5 +1,5 @@
 include <constants.scad>
-$fn = 20;
+
 e = 1;
 top_plate_width = 90;
 
