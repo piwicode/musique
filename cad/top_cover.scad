@@ -1,11 +1,9 @@
 include <constants.scad>
 
-module top_cover_plate() {
-  corner_radius = 4;
-  
-  linear_extrude(top_cover_thickness) {
-    offset(r=corner_radius) 
-    square(top_cover_width - corner_radius * 2, center=true);
+module rounded_square(width, thickness, radius) {
+  linear_extrude(thickness) {
+    offset(r=radius) 
+    square(width - radius * 2, center=true);
   }
 }
 
@@ -101,7 +99,7 @@ pocket(
   depth = 9, // depth 8 -> 9
   hole_radius = 4.7, // 4.5 -> 4.7
   slope = 1)
-top_cover_plate();
+rounded_square(width=top_cover_width, thickness=top_cover_thickness, radius=4);
 }
 
 top_cover();
