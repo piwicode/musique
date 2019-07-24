@@ -1,14 +1,11 @@
 include <constants.scad>
 
-
-top_plate_width = 90;
-
 module top_cover_plate() {
   corner_radius = 4;
   
   linear_extrude(top_cover_thickness) {
     offset(r=corner_radius) 
-    square(top_plate_width - corner_radius * 2, center=true);
+    square(top_cover_width - corner_radius * 2, center=true);
   }
 }
 

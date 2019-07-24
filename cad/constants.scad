@@ -9,3 +9,5 @@ thickness = 3;
 // ----------------------------------------
 // Top
 top_cover_thickness = 2;
+
+top_cover_width = 90;
