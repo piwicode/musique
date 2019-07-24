@@ -70,3 +70,29 @@ module circular_pattern(r, xi, yi, stride) {
     children();
   }
 }
+
+// hw: horizontal width of a hole.
+// bw: bars widh of the separation between the holes.
+module triangle_circular_pattern(bw = 2, hw = 5, r = 80) {
+  //        delta_x
+  //        :<-->:
+  //  ..... :    :________
+  //  ^    / \   \       /
+  //  |   /   \   \     /
+  //  v  /     \   \   /
+  //  ../_______\   \./
+  //  
+  delta_x = bw / sin(60);  // horizontal offset between triangles.
+  triangle_height = hw * sin(60);   
+  circular_pattern(r = r, 
+                   xi = hw + delta_x * 2, 
+                   yi = triangle_height + bw, 
+                   stride = [0, hw /2 + delta_x]) {
+    polygon([[0, 0], 
+             [hw / 2, triangle_height],
+             [- hw / 2, triangle_height]]);
+    polygon([[delta_x, 0], 
+             [delta_x + hw, 0],
+             [delta_x + hw / 2, triangle_height]]);
+  }
+}

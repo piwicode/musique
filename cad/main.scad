@@ -21,44 +21,6 @@ nut_d_max = 6 + lose;
 pocket_thickness = 1;
 
 
-// hw: horizontal width of a hole.
-// bw: bars widh of the separation between the holes.
-module triangle_pattern(bw = 2, hw = 5, r = 80) {
-  //        delta_x
-  //        :<-->:
-  //  ..... :    :________
-  //  ^    / \   \       /
-  //  |   /   \   \     /
-  //  v  /     \   \   /
-  //  ../_______\   \./
-  //  
-  delta_x = bw / sin(60);  // horizontal offset between triangles.
-  triangle_height = hw * sin(60);   
-  circular_pattern(r = r, 
-                   xi = hw + delta_x * 2, 
-                   yi = triangle_height + bw, 
-                   stride = [0, hw /2 + delta_x]) {
-    polygon([[0, 0], 
-             [hw / 2, triangle_height],
-             [- hw / 2, triangle_height]]);
-    polygon([[delta_x, 0], 
-             [delta_x + hw, 0],
-             [delta_x + hw / 2, triangle_height]]);
-  }
-}
-
-module hexagon_pattern(bw = 1, hw = 6) {
-  delta_x = bw / sin(60);  // horizontal offset between triangles.
-  triangle_height = hw * sin(60);
-  yi = triangle_height + bw; // y increment.
-  xi = hw + delta_x * 2; // x increment.
-    
-  circular_pattern(r = 60, xi = xi, yi = yi, stride = [0, hw / 2]) {
-    circle(r= hw/2, $fn = 6);
-  }
-}
-
-
 // Box front side.
 union() {
   h = sqrt(spkr_c * spkr_c - spkr_r * spkr_r);
@@ -87,7 +49,7 @@ union() {
     // Holes
     translate([0, size_y / 2,  h - spkr_c - thickness])
     linear_extrude(spkr_c - h + thickness * 3)
-    triangle_pattern(r = spkr_r);
+    triangle_circular_pattern(r = spkr_r);
   }
   
   // Speaker face holder.
