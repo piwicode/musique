@@ -1,6 +1,5 @@
-use <constants.scad>
+include <constants.scad>
 $fn = 20;
-top_cover_thickness = 2;
 e = 1;
 top_plate_width = 90;
 
