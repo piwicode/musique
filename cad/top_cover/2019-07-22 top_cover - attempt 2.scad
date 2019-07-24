@@ -67,7 +67,7 @@ module screw_pocket(position) {
 }
 
 screw_pocked_distance = 38;
-translate([screw_pocked_distance,screw_pocked_distance,0])
+
 screw_pocket(position = [screw_pocked_distance, screw_pocked_distance])
 screw_pocket(position = [-screw_pocked_distance, screw_pocked_distance])
 screw_pocket(position = [-screw_pocked_distance, -screw_pocked_distance])
@@ -98,7 +98,7 @@ pocket(
   position = [cos(delta_angle*1.5)*d, sin(delta_angle*1.5)*d, 0])
 
 pocket(
-  position=[0, 0, 0],
+  position = [0, 0, 0],
   pocket_radius = 8.2,  // knob radius 8 -> 8.2
   depth = 9, // depth 8 -> 9
   hole_radius = 4.7, // 4.5 -> 4.7
