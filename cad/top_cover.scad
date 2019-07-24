@@ -1,40 +1,5 @@
 include <constants.scad>
 
-module pocket(position, pocket_radius, depth, hole_radius, slope, thickness) {
-  difference() {
-    union() {
-      children();
-      translate(position)
-      cylinder(r1=pocket_radius + thickness + depth * .2, 
-               r2=pocket_radius + thickness,
-               h=depth + thickness);
-    }
-
-    translate(position)
-    rotate_extrude(convexity=10) {
-      polygon(points = [
-        [0, -epsilon],
-        [0, depth + thickness + epsilon],
-        [hole_radius ,depth + thickness + epsilon],
-        [hole_radius, depth],
-        [pocket_radius, depth - slope], 
-        [pocket_radius, -epsilon],
-      ]);
-    }
-  }    
-}
-
-module screw_pocket(position) {
-  pocket(
-    slope = .4, // Two pint layers.
-    pocket_radius = 5.5 / 2, // Measure screw head radius.
-    depth = 3.05, // Measure screw head height.
-    hole_radius = 2.9 / 2, // Measure screw fillet radius.
-    position = position,
-    thickness = screw_pocket_thickness)
-  children();
-}
-
 module push_button_pocket(position) {
   pocket(
     slope = .2,  // slope 0 -> .2

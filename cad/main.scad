@@ -1,5 +1,6 @@
 include <constants.scad>
 use <top_cover.scad>
+use <back_cover.scad>
 use <front_side.scad>
 
 
@@ -20,21 +21,8 @@ cube([thickness, size_y, size_z]);
 translate([size_x/2 - thickness, 0, 0])
 cube([thickness, size_y, size_z]);
 
-// Battery case.
-// LR6 Battery diameter is 14,2 mm
-// 4 LR6 case: 61.9 mm x 57.2 mm x 15 mm
-case_height = 58;
-case_width = 62;
-case_depth = 15 + /*margin=*/.5 + thickness;
-
 // --------------------------------
 // Box back side.
-
-// Peg holes.
-peg_hole_thickness = thickness * 1.5;
-peg_hole_width = 10;
-// TODO: rename peg_hole_h_spacing
-get_hole_h_spacing = 25; // Distance between the two peg holes.
 
 difference() {
   // Face.
@@ -90,35 +78,6 @@ translate([0,0,0]) {
 // ---------------------------------------
 // Back cover
 
-module back_cover() {
-  // Parameters
-  cover_thickness = thickness;
-  cover_size_x = size_x - thickness * 2;
-  cover_size_y = case_height + case_depth + thickness - thickness;
-  // Computed parameters
-  translate([-cover_size_x/2, 0, 0]) {
-    screw_pocked_distance = 7; // distance to the border.
-    screw_pocket(position=[screw_pocked_distance, screw_pocked_distance])
-    screw_pocket(position=[cover_size_x - screw_pocked_distance, screw_pocked_distance]) union(){
-      // 3 Pegs on the top edge.
-      translate_clone([[-get_hole_h_spacing,0,0], [0,0,0], [get_hole_h_spacing,0,0]])
-      translate([cover_size_x / 2 - peg_hole_width / 2 + lose, 
-      cover_size_y - cover_thickness * 2, 0])
-      rotate([45, 0 ,0])
-      cube([peg_hole_width - lose * 2, 7, thickness]);
-
-      difference() {
-        // Back cover Body.
-        cube([cover_size_x, cover_size_y, thickness]);
-        
-        // 45 deg cut on the top edge.
-        translate([-epsilon, cover_size_y - thickness - epsilon, + thickness + epsilon])
-        rotate([-45, 0, 0])
-        cube([cover_size_x + 2 * epsilon, thickness * 2, thickness]);
-      }
-    }
-  }
-}
 translate([0, thickness, size_z])
 rotate([0,180, 0])
 #back_cover();
