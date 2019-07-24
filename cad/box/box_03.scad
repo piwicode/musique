@@ -19,10 +19,16 @@ spkr_depth = 24;
 spkr_magnet_r = 20;
 spkr_adjustment = .2;
 
-hole_radius = 2.9 / 2; // Measure of screw fillet radius.
-nut_height = 1; // TO BE MEASURED
-nut_d_min = 5.41;
-nut_d_max = 6;
+lose = .2;
+tight = .1;
+
+// Measure of screw fillet radius.
+// This is not a functionnal adjustment.
+hole_radius = 2.9 / 2 + lose / 2; 
+
+nut_height = 1 + lose; // TO BE MEASURED
+nut_d_min = 5.41 + tight;
+nut_d_max = 6 + lose;
 
 screw_head_radius = 5.5 / 2; // Measure.
 screw_head_height = 3.05; // Measure.
@@ -204,6 +210,13 @@ case_depth = 15 + /*margin=*/.5 + thickness;
 
 // --------------------------------
 // Box back side.
+
+// Peg holes.
+peg_hole_thickness = thickness * 1.5;
+peg_hole_width = 10;
+// TODO: rename peg_hole_h_spacing
+get_hole_h_spacing = 25; // Distance between the two peg holes.
+  
 difference() {
   // Face.
   translate([-size_x / 2, 0, size_z])
@@ -218,11 +231,7 @@ difference() {
     [case_height + thickness + case_depth, - thickness],  
     [case_height + thickness, -case_depth - thickness], 
     [0, -case_depth - thickness]]);
-  // Peg holes.
-  peg_hole_thickness = thickness * 1.5;
-  peg_hole_width = 10;
-  get_hole_h_spacing = 25; // Distance between the two peg holes.
-
+  
   clone([[-get_hole_h_spacing,0,0], [0,0,0], [get_hole_h_spacing,0,0]])
   translate([-peg_hole_width / 2, 0, size_z - thickness - peg_hole_thickness - epsilon])
   cube([peg_hole_width, size_y, peg_hole_thickness]);
@@ -255,6 +264,24 @@ translate([0,0,0]) {
       translate([8, 0, 0])
       circle($fn=6, r=nut_d_max/2);
     }
+  }
+}
+
+// ---------------------------------------
+// Back cover
+translate([0, 0, 0]) {
+  cover_thickness = thickness;
+  cover_size_x = size_x - thickness * 2;
+  cover_size_y = case_height + case_depth + thickness;
+  screw_pocked_distance = 7; // distance to the border.
+  screw_pocket(position=[screw_pocked_distance, screw_pocked_distance])
+  screw_pocket(position=[cover_size_x - screw_pocked_distance, screw_pocked_distance])
+  difference() {
+    cube([cover_size_x, cover_size_y, thickness]);
+
+    translate([-epsilon, cover_size_y - thickness - epsilon, + thickness + epsilon])
+    rotate([-45, 0, 0])
+    cube([cover_size_x + 2 * epsilon, thickness * 2, thickness]);
   }
 }
 
@@ -331,8 +358,9 @@ cylinder(r1 = lp_r, r2 = lp_r, h = lp_h);
 %translate([-61.9/2, thickness, size_z - case_depth])
 cube([61.9, 57.2, 15.0]);
 
-// Nut holder
-screw_head_height = 3.05; // Measure.
+// Top nut holder
+
+// Thicknes of the layer holding the nut.
 screw_pocket_thickness = 1;
 
 module placed_nut_holder() {
@@ -390,5 +418,18 @@ module nut_holder() {
         translate([hole_dist + 3, hole_dist, 0])circle($fn=6, r=nut_d_max/2);
       }
     }
+  }
+}
+
+
+// Testcase
+!translate([0,0,0]){
+  nut_holder();
+  
+  translate([-thickness, -20 + thickness, -thickness])
+  difference(){
+    cube([20,20,20]);
+    translate([thickness, thickness, thickness])
+    cube([20,20,20]);
   }
 }
