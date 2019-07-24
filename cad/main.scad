@@ -1,11 +1,6 @@
 include <constants.scad>
 use <top_cover.scad>
 
-// Exterior dimensions of the box.
-size_x = 96;
-size_y = 96;
-size_z = 96;
-
 // Features:
 spkr_r = 35; // Radius of the spkr circular openning.
 spkr_c = 100; // Radius of curvature of the spkr.
@@ -394,7 +389,7 @@ placed_nut_holder();
 
 module nut_holder() {
 
-  hole_dist = 7; // Distance between the hole and the border.
+  hole_dist = size_x / 2 - thickness - top_screw_pocket_distance; // Distance between the hole and the border.
   thickness = 1; // Thickness of the layer on top of the nut.
   translate([0, -nut_height - thickness, 0])
   rotate([90, 0, 0])

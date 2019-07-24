@@ -54,13 +54,11 @@ module screw_pocket(position) {
   children();
 }
 
-screw_pocked_distance = 38;
-
 module top_cover() {
-screw_pocket(position = [screw_pocked_distance, screw_pocked_distance])
-screw_pocket(position = [-screw_pocked_distance, screw_pocked_distance])
-screw_pocket(position = [-screw_pocked_distance, -screw_pocked_distance])
-screw_pocket(position = [screw_pocked_distance, -screw_pocked_distance])
+screw_pocket(position = [top_screw_pocket_distance, top_screw_pocket_distance])
+screw_pocket(position = [-top_screw_pocket_distance, top_screw_pocket_distance])
+screw_pocket(position = [-top_screw_pocket_distance, -top_screw_pocket_distance])
+screw_pocket(position = [top_screw_pocket_distance, -top_screw_pocket_distance])
 pocket(
   slope = pb_slope,
   pocket_radius = pb_pocket_radius,
