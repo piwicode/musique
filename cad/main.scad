@@ -309,7 +309,6 @@ difference() {
 top_plate_width = /*80*/ size_x - 2 * thickness;
 top_plate_thickness = 2;
 top_support = 2;
-top_corner_r = 4;
 
 // Top plate
 translate([0, size_y, size_z/2])
@@ -317,7 +316,7 @@ rotate([90, 0, 0])
 linear_extrude(top_plate_thickness)
 difference() {
   square([size_x, size_z], center=true);
-  rounded_square(width=top_plate_width, radius=top_corner_r);
+  rounded_square(width=top_plate_width, radius=top_cover_corner_r);
 }
 
 translate([0, size_y - top_plate_thickness, 0])

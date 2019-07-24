@@ -91,7 +91,7 @@ pocket(
   hole_radius = 4.7, // 4.5 -> 4.7
   slope = 1)
 linear_extrude(top_cover_thickness) 
-rounded_square(width=top_cover_width, radius=4);
+rounded_square(width=top_cover_width, radius=top_cover_corner_r);
 }
 
 top_cover();

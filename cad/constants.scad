@@ -20,6 +20,7 @@ top_cover_thickness = 2;
 
 // Dimmension for the square shaped top cover
 top_cover_width = 90;
+top_cover_corner_r = 4;
 // Distance from the center of the plate to the screw hole
 // horizontally and vertically.
 top_screw_pocket_distance = 38;
