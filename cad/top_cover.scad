@@ -1,6 +1,6 @@
 include <constants.scad>
 
-e = 1;
+
 top_plate_width = 90;
 
 module top_cover_plate() {
@@ -31,12 +31,12 @@ module pocket(
     translate(position)
     rotate_extrude(convexity=10) {
       polygon(points = [
-        [0, -e],
-        [0, depth + thickness + e],
-        [hole_radius ,depth + thickness + e],
+        [0, -epsilon],
+        [0, depth + thickness + epsilon],
+        [hole_radius ,depth + thickness + epsilon],
         [hole_radius, depth],
         [pocket_radius, depth - slope], 
-        [pocket_radius, -e],
+        [pocket_radius, -epsilon],
       ]);
     }
   }    
