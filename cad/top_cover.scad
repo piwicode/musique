@@ -1,12 +1,5 @@
 include <constants.scad>
 
-module rounded_square(width, thickness, radius) {
-  linear_extrude(thickness) {
-    offset(r=radius) 
-    square(width - radius * 2, center=true);
-  }
-}
-
 module pocket(
   position=[0,0,0],
   pocket_radius = 15/2,
@@ -99,7 +92,8 @@ pocket(
   depth = 9, // depth 8 -> 9
   hole_radius = 4.7, // 4.5 -> 4.7
   slope = 1)
-rounded_square(width=top_cover_width, thickness=top_cover_thickness, radius=4);
+linear_extrude(top_cover_thickness) 
+rounded_square(width=top_cover_width, radius=4);
 }
 
 top_cover();

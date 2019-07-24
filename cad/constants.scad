@@ -15,3 +15,10 @@ thickness = 3;
 top_cover_thickness = 2;
 
 top_cover_width = 90;
+
+// ----------------------------------------
+// Common functions
+module rounded_square(width, radius) {
+  offset(r=radius) 
+  square(width - radius * 2, center=true);
+}
