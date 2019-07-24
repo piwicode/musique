@@ -1,8 +1,6 @@
 include <constants.scad>
 use <top_cover.scad>
 
-//e = 1;
-
 // Exterior dimensions of the box.
 size_x = 96;
 size_y = 96;
@@ -16,9 +14,6 @@ spkr_width = 78; // Measured.
 spkr_depth = 24;
 spkr_magnet_r = 20;
 spkr_adjustment = .2;
-
-lose = .2;
-tight = .1;
 
 // Measure of screw fillet radius.
 // This is not a functionnal adjustment.

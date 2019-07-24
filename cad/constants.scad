@@ -3,6 +3,10 @@
 epsilon = .01;
 $fn = $preview ? 12 : 72;
 
+// Adjustements
+lose = .2;
+tight = .1;
+
 // Wall thickness of the faces.
 thickness = 3;
 
