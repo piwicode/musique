@@ -306,19 +306,18 @@ difference() {
 }
 // ---------------------------------------------------
 // Box top side
-top_plate_thickness = 2;
 top_support = 2;
 
 // Top plate
 translate([0, size_y, size_z/2])
 rotate([90, 0, 0])
-linear_extrude(top_plate_thickness)
+linear_extrude(top_cover_thickness)
 difference() {
   square([size_x, size_z], center=true);
   rounded_square(width=top_cover_width, radius=top_cover_corner_r);
 }
 
-translate([0, size_y - top_plate_thickness, 0])
+translate([0, size_y - top_cover_thickness, 0])
 union() {
   // Left support.
   translate([size_x / 2, 0, 0]) {
@@ -355,7 +354,7 @@ rotate([90,-90,0])
 lp_h = 18;
 lp_r = 70 / 2;
 
-%translate([0, size_y - top_plate_thickness, size_z / 2]) 
+%translate([0, size_y - top_cover_thickness, size_z / 2]) 
 rotate([90, 0, 0])
 cylinder(r1 = lp_r, r2 = lp_r, h = lp_h);
 
