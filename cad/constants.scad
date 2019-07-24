@@ -19,6 +19,10 @@ screw_head_radius = 5.5 / 2; // Measure.
 screw_head_height = 3.05; // Measure.
 screw_fillet_radius =  2.9 / 2; // Measure.
 
+// Measure of screw fillet radius.
+// This is not a functionnal adjustment.
+hole_radius = screw_fillet_radius + lose / 2; // Computed
+
 screw_pocket_thickness = 1; // Thickness of the botton of a screw pocket.
 
 nut_height = 1 + lose; // TO BE MEASURED
