@@ -306,7 +306,6 @@ difference() {
 }
 // ---------------------------------------------------
 // Box top side
-top_plate_width = /*80*/ size_x - 2 * thickness;
 top_plate_thickness = 2;
 top_support = 2;
 
@@ -316,39 +315,39 @@ rotate([90, 0, 0])
 linear_extrude(top_plate_thickness)
 difference() {
   square([size_x, size_z], center=true);
-  rounded_square(width=top_plate_width, radius=top_cover_corner_r);
+  rounded_square(width=top_cover_width, radius=top_cover_corner_r);
 }
 
 translate([0, size_y - top_plate_thickness, 0])
 union() {
   // Left support.
   translate([size_x / 2, 0, 0]) {
-    d = (size_x - top_plate_width) / 2 + top_support;
+    d = (size_x - top_cover_width) / 2 + top_support;
     t = thickness;
     linear_extrude(size_z) polygon([[0, 0], [-d, 0], [-d, -t], [0, -d - t]]);
   }
   // Right support.
   translate([-size_x / 2 , 0, 0]) {
-    d = (size_x - top_plate_width) / 2 + top_support;
+    d = (size_x - top_cover_width) / 2 + top_support;
     t = thickness;
     linear_extrude(size_z) polygon([[0, 0], [d, 0], [d, -t], [0, -d - t]]);
   }
   // Front support.
   translate([-size_x / 2, 0, 0]) {
-    d = (size_z - top_plate_width) / 2 + top_support;
+    d = (size_z - top_cover_width) / 2 + top_support;
     t = thickness;
     rotate([0, 90, 0])
     linear_extrude(size_x) polygon([[0, 0], [-d, 0], [-d, -t], [-t , -d], [0, -d]]);
   }
   // Back support.
   translate([-size_x / 2, 0, size_z]) {
-    d = (size_z - top_plate_width) / 2 + top_support;
+    d = (size_z - top_cover_width) / 2 + top_support;
     t = thickness;
     rotate([0, 90, 0])
     linear_extrude(size_x) polygon([[0, 0], [d, 0], [d, -t], [0, -d - t]]); 
   }
 }
-translate([0, size_y, top_plate_width/2 + thickness])
+translate([0, size_y, top_cover_width/2 + thickness])
 rotate([90,-90,0])
 #top_cover();
 
