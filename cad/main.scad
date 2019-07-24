@@ -1,9 +1,7 @@
 include <constants.scad>
 use <top_cover.scad>
 
-//Thickness of the wood.
-thickness = 3;
-e = 1;
+//e = 1;
 
 // Exterior dimensions of the box.
 size_x = 96;
@@ -167,12 +165,12 @@ union() {
     cube([mf_width, size_y / 2, mf_pocket_depth + mf_back_thickness]);
    
     // Pocket holding the speaker magnet.
-    translate([0, size_y / 2, -e])
-    linear_extrude(mf_pocket_depth + e)
+    translate([0, size_y / 2, -epsilon])
+    linear_extrude(mf_pocket_depth + epsilon)
     circle(r = spkr_magnet_r);
     
-    translate([0, size_y / 2, e])
-    linear_extrude(mf_pocket_depth + mf_back_thickness + e)
+    translate([0, size_y / 2, epsilon])
+    linear_extrude(mf_pocket_depth + mf_back_thickness + epsilon)
     circle(r = spkr_magnet_r * 2 / 3);
   }
   
