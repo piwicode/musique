@@ -45,16 +45,3 @@ cylinder(r1 = lp_r, r2 = lp_r, h = lp_h);
 // Bateries holder bounding shape.
 %translate([-61.9/2, thickness, size_z - case_depth])
 cube([61.9, 57.2, 15.0]);
-
-
-// Testcase
-module test_case_1() {
-  nut_holder();
-  
-  translate([-thickness, -20 + thickness, -thickness])
-  difference(){
-    cube([20,20,20]);
-    translate([thickness, thickness, thickness])
-    cube([20,20,20]);
-  }
-}

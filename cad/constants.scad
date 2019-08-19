@@ -4,6 +4,7 @@ epsilon = .01;
 $fn = $preview ? 12 : 72;
 
 // Adjustements
+x_lose = .4;
 lose = .2;
 tight = .1;
 
@@ -21,7 +22,12 @@ screw_fillet_radius =  2.9 / 2; // Measure.
 
 // Measure of screw fillet radius.
 // This is not a functionnal adjustment.
-hole_radius = screw_fillet_radius + lose / 2; // Computed
+
+hole_radius = screw_fillet_radius + x_lose / 2; // Computed
+screw_head_hole_radius = screw_head_radius + x_lose;
+screw_head_hole_height = screw_head_height + lose;
+screw_fillet_hole_radius = screw_fillet_radius + lose / 2; // Computed
+screw_fillet_through_radius = screw_fillet_hole_radius + lose; // Computed
 
 screw_pocket_thickness = 1; // Thickness of the botton of a screw pocket.
 
@@ -149,10 +155,10 @@ module pocket(position, pocket_radius, depth, hole_radius, slope, thickness) {
 
 module screw_pocket(position) {
   pocket(
-    slope = .4, // Two pint layers.
-    pocket_radius = 5.5 / 2, // Measure screw head radius.
-    depth = 3.05, // Measure screw head height.
-    hole_radius = 2.9 / 2, // Measure screw fillet radius.
+    slope = .4, // Two print layers.
+    pocket_radius = screw_head_hole_radius,
+    depth = screw_head_hole_height,
+    hole_radius = screw_fillet_through_radius, // Measure screw fillet radius.
     position = position,
     thickness = screw_pocket_thickness)
   children();
