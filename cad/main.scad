@@ -4,6 +4,8 @@ use <back_cover.scad>
 use <back_side.scad>
 use <front_side.scad>
 use <top_side.scad>
+
+module main() {
 front_side();
 
 //---------------------------------
@@ -19,7 +21,9 @@ cube([thickness, size_y, size_z]);
 
 back_side();
 top_side();
+}
 
+main();
 // ---------------------------------------
 // Back cover
 translate([0, thickness, size_z])
