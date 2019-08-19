@@ -99,10 +99,6 @@ module top_side() {
 
 }
 
-
-
-
-
 top_side();
 translate([0, size_y, top_cover_width/2 + thickness])
 rotate([90,-90,0])
