@@ -29,7 +29,7 @@ module back_side() {
     
     // computed
     nut_holder_size_x = nut_d_min + 2 * nut_holder_thckness;
-    nut_holder_size_y = nut_holder_hole_height + hole_radius + 2;
+    nut_holder_size_y = nut_holder_hole_height + screw_fillet_hole_radius + 2;
     nut_holder_size_z = nut_height + 2 * nut_holder_thckness;
     
     yz_symetry_clone()
@@ -39,7 +39,7 @@ module back_side() {
       cube([nut_holder_size_x, nut_holder_size_y, nut_holder_size_z]);
       translate([nut_holder_size_x/2, nut_holder_hole_height, +epsilon])
       linear_extrude(nut_holder_size_z + 2 * epsilon)
-      square(hole_radius * 2, center = true);
+      square(screw_fillet_hole_radius * 2, center = true);
 
       translate([nut_holder_size_x / 2, nut_holder_thckness, nut_holder_thckness])
       

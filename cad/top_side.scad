@@ -2,7 +2,6 @@ include <constants.scad>
 use <top_cover.scad>
 
 module nut_holder() {
-
   hole_dist = size_x / 2 - thickness - top_screw_pocket_distance; // Distance between the hole and the border.
   //thickness = 1; // Thickness of the layer on top of the nut.
  // translate([0, -nut_height - thickness, 0])
@@ -14,21 +13,27 @@ module nut_holder() {
     difference() {
       // Pyramid and nud body holder.
       union() {
+        linear_extrude(height = thickness)
+        square(support_width);
+        translate([0, 0, thickness])
         linear_extrude(height = support_width, scale = [0, 1])
         square(support_width);
       }
 
       // Screw hole.
       translate([hole_dist, hole_dist, -1])
-      cylinder(r1 = hole_radius, r2 = hole_radius, h = hole_dist + 2);
-
+      cylinder(r1 = screw_fillet_hole_radius, r2 = screw_fillet_hole_radius, h = hole_dist + 2);
       
+      translate([hole_dist, hole_dist, thickness])
+      translate([0, 0,  support_width/2])
+      cube([screw_fillet_hole_radius *2, screw_fillet_hole_radius * 2, support_width],
+           center=true);
     }
   }
 }
 
 module placed_nut_holder() {
-  translate([-size_x / 2 + thickness, size_y - screw_pocket_thickness - screw_head_hole_height + lose, thickness])
+  translate([-size_x / 2 + thickness, size_y - screw_pocket_thickness - screw_head_hole_height - lose, thickness])
   nut_holder();
 }
 

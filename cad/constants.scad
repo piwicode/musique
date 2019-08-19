@@ -16,18 +16,16 @@ size_z = 96;
 thickness = 3;
 
 // ----------------------------------------
-screw_head_radius = 5.5 / 2; // Measure.
-screw_head_height = 3.05; // Measure.
-screw_fillet_radius =  2.9 / 2; // Measure.
+screw_head_radius = 5.5 / 2; // Measured.
+screw_head_height = 3.05; // Measured.
+screw_fillet_radius =  2.9 / 2; // Measured.
 
 // Measure of screw fillet radius.
 // This is not a functionnal adjustment.
-
-hole_radius = screw_fillet_radius + x_lose / 2; // Computed
-screw_head_hole_radius = screw_head_radius + x_lose;
-screw_head_hole_height = screw_head_height + lose;
-screw_fillet_hole_radius = screw_fillet_radius + lose / 2; // Computed
-screw_fillet_through_radius = screw_fillet_hole_radius + lose; // Computed
+screw_head_hole_radius = screw_head_radius + x_lose; // Computed.
+screw_head_hole_height = screw_head_height + lose; // Computed.
+screw_fillet_hole_radius = screw_fillet_radius + lose / 2; // Computed.
+screw_fillet_through_radius = screw_fillet_hole_radius + lose; // Computed.
 
 screw_pocket_thickness = 1; // Thickness of the botton of a screw pocket.
 
