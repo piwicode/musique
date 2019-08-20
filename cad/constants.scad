@@ -63,10 +63,16 @@ top_screw_pocket_distance = 38;
 // ----------------------------------------
 // Common functions
 
-module rounded_square(width, radius) {
-  offset(r=radius) 
-  square(width - radius * 2, center=true);
+module rounded_square(width, radius, center=true) {
+  rounded_rectangle([width, width], radius, center);
 }
+
+module rounded_rectangle(d, radius, center=true) {
+  translate(center ? [0,0,0] : [radius, radius, 0])
+  offset(r=radius) 
+  square([d[0] - radius * 2, d[1] - radius * 2], center=center);
+}
+
 
 module translate_clone(translations) {
   for(translation = translations) {

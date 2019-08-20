@@ -19,7 +19,12 @@ module back_cover() {
 
       difference() {
         // Back cover Body.
-        cube([cover_size_x, cover_size_y, thickness]);
+        intersection() {
+          cube([cover_size_x, cover_size_y, thickness]);
+          translate([cover_size_x/2, cover_size_x/2, -epsilon])
+          linear_extrude(thickness + epsilon * 2)
+          rounded_square(cover_size_x, top_cover_corner_r);
+        }
         
         // 45 deg cut on the top edge.
         translate([-epsilon, cover_size_y - thickness - epsilon, + thickness + epsilon])

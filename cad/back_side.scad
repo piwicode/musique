@@ -54,7 +54,8 @@ module back_side() {
     cube([size_x - thickness * 2 - back_support_size * 2, size_z, thickness * 2 + epsilon * 2]);
     //
     translate([thickness, thickness, thickness])
-    cube([size_x - thickness * 2, size_z, thickness + epsilon]);
+    linear_extrude(thickness + epsilon * 2)
+    rounded_rectangle([size_x - thickness * 2, size_z], top_cover_corner_r, center=false);
   }
 }
 
