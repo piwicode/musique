@@ -49,7 +49,7 @@ rotate([0,180, 0])
 
 // ---------------------------------------
 // Top cover
-translate([0, size_y, top_cover_width/2 + thickness])
+*translate([0, size_y, top_cover_width/2 + thickness])
 rotate([90,-90,0])
 #top_cover();
 
@@ -57,6 +57,13 @@ rotate([90,-90,0])
 // Lilypad bounding shape.
 lp_h = 18;
 lp_r = 70 / 2;
+
+#translate([0, size_y/2, thickness])
+linear_extrude(10)
+hull() {
+  circle(78/2);
+  square(60, center=true);
+}
 
 %translate([0, size_y - top_cover_thickness, size_z / 2]) 
 rotate([90, 0, 0])
