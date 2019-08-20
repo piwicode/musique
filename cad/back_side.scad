@@ -30,26 +30,16 @@ module back_side() {
     // computed
     nut_holder_size_x = nut_d_min + 2 * nut_holder_thckness;
     nut_holder_size_y = nut_holder_hole_height + screw_fillet_hole_radius + 2;
-    nut_holder_size_z = nut_height + 2 * nut_holder_thckness;
+    nut_holder_size_z = nut_holder_thckness;
     
     yz_symetry_clone()
     // TODO: replace 7 with screw_pocked_distance
-    translate([-size_x / 2 - nut_holder_size_x/2 +thickness + 7, thickness, size_z - nut_holder_size_z - thickness - screw_head_height - screw_pocket_thickness])
+    translate([-size_x / 2 - nut_holder_size_x/2 + thickness + 7, thickness, size_z - nut_holder_size_z - screw_head_hole_height - screw_pocket_thickness - lose])
     difference() {
       cube([nut_holder_size_x, nut_holder_size_y, nut_holder_size_z]);
-      translate([nut_holder_size_x/2, nut_holder_hole_height, +epsilon])
+      translate([nut_holder_size_x/2, nut_holder_hole_height, -epsilon])
       linear_extrude(nut_holder_size_z + 2 * epsilon)
       square(screw_fillet_hole_radius * 2, center = true);
-
-      translate([nut_holder_size_x / 2, nut_holder_thckness, nut_holder_thckness])
-      
-      linear_extrude(nut_height)
-      rotate([0, 0, 90])
-      hull() {
-        circle($fn=6, r=nut_d_max/2);
-        translate([8, 0, 0])
-        circle($fn=6, r=nut_d_max/2);
-      }
     }
   }
 
