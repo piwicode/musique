@@ -1,7 +1,7 @@
 // Small value used to clarify whenever a shape is inside or outside another.
 
 epsilon = .01;
-$fn = $preview ? 12 : 72;
+$fn = $preview ? 12 : 128;
 
 // Adjustements
 x_lose = .4;
