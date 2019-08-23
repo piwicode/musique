@@ -37,9 +37,9 @@ nut_d_max = 6 + lose;
 // Battery case.
 // LR6 Battery diameter is 14,2 mm
 // 4 LR6 case: 61.9 mm x 57.2 mm x 15 mm
-case_height = 58;
+case_height = 58 + /*margin*/1;
 case_width = 62;
-case_depth = 15 + /*margin=*/.5 + thickness;
+case_depth = 17 + /*margin=*/.5 + thickness;
 
 // ----------------------------------------
 // Peg holes.

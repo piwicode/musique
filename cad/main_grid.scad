@@ -1,6 +1,6 @@
 include <constants.scad>
 use <main.scad>
-spkr_r = 35;
+spkr_r = 36;
 rotate([90,0,0])
 intersection() {
   main();
