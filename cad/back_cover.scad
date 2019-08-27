@@ -11,19 +11,23 @@ module back_cover() {
     screw_pocket(position=[screw_pocked_distance, screw_pocked_distance])
     screw_pocket(position=[cover_size_x - screw_pocked_distance, screw_pocked_distance]) union(){
       // 3 Pegs on the top edge.
+      peg_width = peg_hole_width - lose * 2;
       translate_clone([[-get_hole_h_spacing,0,0], [0,0,0], [get_hole_h_spacing,0,0]])
-      translate([cover_size_x / 2 - peg_hole_width / 2 + lose, 
+      translate([cover_size_x / 2 - peg_width / 2 + lose, 
       cover_size_y - cover_thickness * 2, 0])
       rotate([45, 0 ,0])
-      cube([peg_hole_width - lose * 2, 7, thickness]);
+      cube([peg_width - lose * 2, 7, thickness]);
 
+      // Adjustement.
+      adj = lose;
+      translate([adj, 0, 0])
       difference() {
         // Back cover Body.
         intersection() {
-          cube([cover_size_x, cover_size_y, thickness]);
-          translate([cover_size_x/2, cover_size_x/2, -epsilon])
+          cube([cover_size_x-adj * 2, cover_size_y, thickness]);
+          translate([cover_size_x / 2 - adj, cover_size_x/2, -epsilon])
           linear_extrude(thickness + epsilon * 2)
-          rounded_square(cover_size_x, top_cover_corner_r);
+          rounded_rectangle([cover_size_x - adj * 2, cover_size_x], top_cover_corner_r);
         }
         
         // 45 deg cut on the top edge.
