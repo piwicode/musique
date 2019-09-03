@@ -73,6 +73,7 @@
 
 // Duration of innactivity after which one the player auto switches of.
 #define SWITCH_OFF_DELAY 20000
+#define VOLUME_CONTROL_DELAY 2000
 
 #define SERIAL_DEBUG_ENABLED 1
 
@@ -108,9 +109,8 @@
 do {if(!(cond)) {LOG(F("Check failed"), F(#cond)); fatalErrorBlink(3, RED);}} while(0)
 
 // Global variables and flags for interrupt request functions:
+volatile unsigned long last_rotary_event = 0L;
 volatile int rotary_counter = 0; // Current "position" of rotary encoder (increments CW) 
-volatile boolean rotary_change = false; // Will turn true if rotary_counter has changed
-volatile boolean rotary_direction; // Direction rotary encoder was turned (true = CW)
 volatile unsigned char rotary_state = 0; // Current and previous encoder states
 
 volatile boolean button_pressed = false; // Will turn true if the button has been pushed
@@ -148,6 +148,7 @@ void initializePowerControlPin() {
   pinMode(TRIG1, OUTPUT);
   digitalWrite(TRIG1, LOW);
 }
+
 void switchOff() {
     LOG("Auto switch off");
     digitalWrite(TRIG1, HIGH);
@@ -155,6 +156,7 @@ void switchOff() {
     digitalWrite(TRIG1, LOW);
     delay(500);
 }
+
 void initializePushButtons() {  
   LOG(F("Configure push buttons IO...")); 
   // Configure LED pins for outputs, and set pins to off.
@@ -185,8 +187,7 @@ void initializeRotary() {
   attachInterrupt(digitalPinToInterrupt(ROT_A), rotaryIRQ, CHANGE);
 
   // Configure rotary push button input.
-  pinMode(ROT_SW, INPUT); // This one has a 1k pull down resistance.
-  //PCintPort::attachInterrupt(ROT_SW, &rotaryButtonIRQ, CHANGE);
+  pinMode(ROT_SW, INPUT); // This one has a 1k pull down resistance.  
   LOG(F("success!"));
 }
 
@@ -195,7 +196,16 @@ void initializeChips() {
   // mode the MP3 chip will start up in (MP3 or MIDI),
   // and to enable/disable the amplifier chip:  
   pinMode(EN_GPIO1, OUTPUT);
-  digitalWrite(EN_GPIO1,LOW);  // MP3 mode / amp off
+  digitalWrite(EN_GPIO1, LOW);  // MP3 mode / amp off
+}
+
+void ampOff() {
+  // Turn off the amplifier chip:
+  digitalWrite(EN_GPIO1, LOW);  
+}
+void ampOn() {
+  // Turn on the amplifier chip:
+  digitalWrite(EN_GPIO1, HIGH);  
 }
 
 void initializeSDCard() {
@@ -220,9 +230,9 @@ void initializeMP3Library() {
   }
   // This project uses only one speaker.
   MP3player.setMonoMode(1);
-  MP3player.setVolume(64,64);
-  // Turn on the amplifier chip:
-  digitalWrite(EN_GPIO1,HIGH);  
+  
+  // Set the VS1053 volume. 0 is loudest, 255 is lowest (off):
+  MP3player.setVolume(32, 32);  
 }
 byte genre_colors[] = {OFF, BLUE, YELLOW, RED, GREEN};
 int BinaryToGrey(int b){ return (b >> 1) ^ b; }
@@ -241,7 +251,7 @@ class PushButton {
   // Deflaked position of the button. True when the button is considered to be pressed.
   bool is_down;
   // Set to true as soon as the button is pressed, to be consumed.
-  bool pressed_event;
+  bool pressed_event;  
   
   const byte trigger;
   const unsigned char pressed_digital_value;
@@ -304,7 +314,9 @@ class Facade {
   bool ShutDownPressed() {
     return rotary.is_down && millis() - rotary.last_position_change_time > SHUT_DOWN_BUTTON_DURATION;
   }
-  
+  bool VolumeControlePressed() {
+    return rotary.is_down && millis() - rotary.last_position_change_time > VOLUME_CONTROL_DELAY;
+  }
   int NextPressEvent() {
     for(int b = 0 ; b < trigger_count ; b++) {
       if(buttons[b].pressed_event){
@@ -497,7 +509,8 @@ void setup() {
 }
 
 
-
+static bool volume_control_mode = false;
+static int volume = 32;
 void loop() {
   facade.Poll();
 
@@ -513,15 +526,29 @@ void loop() {
 
   int rotary_events= fetchAndClearRotaryCounter();
   if(rotary_events != 0) {
+    last_rotary_event = millis();
     LOG(F("Rotary moved by"), rotary_events);
-    bool backward = rotary_events < 0;
-    // Before switching to a new audio file, we MUST
-    // stop playing before accessing the SD directory:
-    if (playing) { stopPlaying(); }
-    for(int i = abs(rotary_events); i > 0 ; i--) {
-      file_browser.NextTrack(backward);
+    if(volume_control_mode) { 
+      volume = min(90, max(16, volume + 2 * rotary_events));
+      LOG(F("Change volume to"), volume);
+      MP3player.setVolume(volume, volume);  
+    } else {
+      bool backward = rotary_events < 0;
+      // Before switching to a new audio file, we MUST
+      // stop playing before accessing the SD directory:
+      if (playing) { stopPlaying(); }
+      for(int i = abs(rotary_events); i > 0 ; i--) {
+        file_browser.NextTrack(backward);
+      }
+      startPlaying();
     }
-    startPlaying();
+  }
+
+  if(volume_control_mode) {
+    if(millis() - last_rotary_event > 10000) {
+      LOG(F("Exit volume control mode"));
+      volume_control_mode = false;
+    }   
   }
 
   if (playing && !MP3player.isPlaying()) {
@@ -535,21 +562,29 @@ void loop() {
     }
   }
 
-  if(!playing) {
-    unsigned long duration = millis() - stopped_playing_at;
-    setLEDColor(duration >> 8); // Blink
-    if( duration > SWITCH_OFF_DELAY ) {
-      switchOff();
+  if(volume_control_mode) {
+    int off = ((millis() >> 7) & 1);    
+    setLEDColor(off ? 0 : CYAN);
+  } else {
+    if(!playing) {
+      unsigned long duration = millis() - stopped_playing_at;
+      setLEDColor(duration >> 8); // Blink
+      if( duration > SWITCH_OFF_DELAY ) {
+        switchOff();
+      }
+    }
+  
+    if(playing) {
+      int off = ((millis() >> 8) & 3);    
+      setLEDColor(off ? OFF : genre_colors[file_browser.CurrentGenre()]);
     }
   }
-
-
-  if(playing) {
-    int off = ((millis() >> 8) & 3);    
-    setLEDColor(off ? OFF : genre_colors[file_browser.CurrentGenre()]);
-  }
   
-
+  if(facade.VolumeControlePressed()) {
+    LOG(F("Enter volume control mode"));
+    last_rotary_event = millis();
+    volume_control_mode = true;
+  }
   if(facade.ShutDownPressed()) {
     switchOff();
   }
@@ -557,10 +592,12 @@ void loop() {
 
 void stopPlaying() {
   LOG(F("Stopping playback"));
+  ampOff();
   MP3player.stopTrack();  
 }
 
 void startPlaying() {
+  ampOn();
   setLEDColor(WHITE);
   char* path = file_browser.GetPath();
   LOG(F("Start playing file"), path);  
@@ -619,7 +656,7 @@ void rotaryIRQ() {
   // Unlike Oleg's original code, this code uses only one interrupt and
   // has only two transition states; it has less resolution but needs only
   // one interrupt, is very smooth, and handles switchbounce well.
-  
+
   rotary_state <<= 2;  // Remember previous state
   rotary_state |= (digitalRead(ROT_A) | (digitalRead(ROT_B) << 1));  // Mask in current state
   rotary_state &= 0x0F; // Zero upper nybble
@@ -627,12 +664,8 @@ void rotaryIRQ() {
   if (rotary_state == 0x09) {
     // From 10 to 01, increment counter. Also try 0x06 if unreliable.
     rotary_counter++;
-    rotary_direction = true;
-    rotary_change = true;
   } else if (rotary_state == 0x03) {
     // From 00 to 11, decrement counter. Also try 0x0C if unreliable.
     rotary_counter--;
-    rotary_direction = false;
-    rotary_change = true;
   }
 }
