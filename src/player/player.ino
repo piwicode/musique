@@ -154,13 +154,13 @@ void switchOff() {
 void initializePushButtons() {  
   LOG(F("Configure push buttons IO...")); 
   // Configure LED pins for outputs, and set pins to off.
-  pinMode(TRIG2, INPUT);
-  pinMode(TRIG3, INPUT);
+  pinMode(TRIG2, INPUT_PULLUP);
+  pinMode(TRIG3, INPUT_PULLUP);
   if(!SERIAL_DEBUG_ENABLED) {
     // Leave the pins used for serial communication unchanged when debugging is
     // enabled.
-    pinMode(TRIG4, INPUT);
-    pinMode(TRIG5, INPUT);  
+    pinMode(TRIG4, INPUT_PULLUP);
+    pinMode(TRIG5, INPUT_PULLUP);  
   }
   LOG(F("success!"));
 }
@@ -218,7 +218,7 @@ void initializeMP3Library() {
   MP3player.setMonoMode(1);
   MP3player.setVolume(64,64);
   // Turn on the amplifier chip:
-  //digitalWrite(EN_GPIO1,HIGH);  
+  digitalWrite(EN_GPIO1,HIGH);  
 }
 
 int BinaryToGrey(int b){ return (b >> 1) ^ b; }
@@ -283,7 +283,7 @@ class Facade {
   public:
     Facade():
     rotary(ROT_SW, HIGH),
-    buttons({PushButton(TRIG2, HIGH), PushButton(TRIG3, HIGH), PushButton(TRIG4, HIGH), PushButton(TRIG5, HIGH)}),
+    buttons({PushButton(TRIG2, LOW), PushButton(TRIG3, LOW), PushButton(TRIG4, LOW), PushButton(TRIG5, LOW)}),
     last_time(0), 
     trigger_count(SERIAL_DEBUG_ENABLED ? 2 : 4) {}
 
