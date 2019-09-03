@@ -72,7 +72,7 @@
 #define WHITE B000
 
 // Duration of innactivity after which one the player auto switches of.
-#define SWITCH_OFF_DELAY 20000
+#define SWITCH_OFF_DELAY 5000
 
 #define SERIAL_DEBUG_ENABLED 1
 
@@ -182,7 +182,7 @@ void initializeRotary() {
 
   // Configure rotary push button input.
   pinMode(ROT_SW, INPUT); // This one has a 1k pull down resistance.
-  PCintPort::attachInterrupt(ROT_SW, &rotaryButtonIRQ, CHANGE);
+  //PCintPort::attachInterrupt(ROT_SW, &rotaryButtonIRQ, CHANGE);
   LOG(F("success!"));
 }
 
@@ -220,7 +220,7 @@ void initializeMP3Library() {
   // Turn on the amplifier chip:
   digitalWrite(EN_GPIO1,HIGH);  
 }
-
+byte button_colors[] = {BLUE, YELLOW, RED, GREEN};
 int BinaryToGrey(int b){ return (b >> 1) ^ b; }
 
 #define DEFLAKE_DURATION 50
@@ -251,11 +251,9 @@ class PushButton {
     pressed_digital_value(pressed_digital_value)
       {}
   
-  void Poll(unsigned long int now, unsigned long int last_time) {
-    const int delta_t = max(now - last_time, DEFLAKE_DURATION/2); // Amount of time since last check.
-    last_time = now;
-    
+  void Poll(unsigned long int now, unsigned long int delta_t) {
     bool isTrigerred = digitalRead(trigger) == pressed_digital_value;
+    if(isTrigerred) LOG(trigger, F("pressed with delta"), delta_t);
     button_accumulator += isTrigerred ? delta_t : -delta_t;
     button_accumulator = max(0, min(DEFLAKE_DURATION, button_accumulator));
   
@@ -289,11 +287,14 @@ class Facade {
 
   void Poll() {    
     unsigned long int now = millis();
-    if(last_time == 0) { last_time = now; return; }
-    rotary.Poll(now, last_time);
-    for(byte b = 0 ; b < trigger_count ; b++) {
-      buttons[b].Poll(now, last_time);
+    if(last_time != 0) {
+      const int delta_t = max(now - last_time, DEFLAKE_DURATION/2); // Amount of time since last check.
+      rotary.Poll(now, delta_t);
+      for(byte b = 0 ; b < trigger_count ; b++) {
+        buttons[b].Poll(now, delta_t);
+      }
     }
+    last_time = now;          
   }
 
   bool ShutDownPressed() {
@@ -415,6 +416,8 @@ class FileBrowser {
   bool IsLastTrackOfAlbum() {
     return cur_track + 1 >= nb_track;
   }
+
+  int CurrentGenre() {return current_genre;}
   void NextTrack(bool backward=false) {    
     if(current_genre == -1) {
       NotifyGenre(1, backward);
@@ -536,6 +539,11 @@ void loop() {
     }
   }
 
+  if(playing) {
+    bool on = (millis() >> 8)&&3 == 0;
+    setLEDColor(on ? YELLOW: OFF);
+  }
+
   if(facade.ShutDownPressed()) {
     switchOff();
   }
@@ -551,7 +559,7 @@ void startPlaying() {
   LOG(F("Start playing file"), path);  
   byte result = MP3player.playMP3(path);
   playing = true;
-  if(result) { LOG(F("Playback failed with"), result);}
+  LOG(F("Playback returned with"), result);
 }
 
 // Sets the RGB LED in the rotary encoder to a specific color. See the color
@@ -576,45 +584,6 @@ void fatalErrorBlink(int blinks, byte color) {
       delay(250);
     }
     delay(1250); // Longer pause between blink-groups
-  }
-}
-
-
-void rotaryButtonIRQ() {
-  // Button press interrupt request function (IRQ).
-  // This function is called *automatically* when the button
-  // changes state.
-
-  // Process rotary encoder button presses and releases, including
-  // debouncing (extra "presses" from noisy switch contacts).
-
-  // If button is pressed, the button_pressed flag is set to true.
-  // (Manually set this to false after handling the change.)
-
-  // If button is released, the button_released flag is set to true,
-  // and button_downtime will contain the duration of the button
-  // press in ms. (Set this to false after handling the change.)
-
-  static boolean button_state = false;
-  static unsigned long start, end;
-    
-  if ((PCintPort::pinState == HIGH) && (button_state == false)) {
-    // Button was up, but is currently being pressed down  
-    // Discard button presses too close together (debounce)
-    start = millis();
-    if (start > (end + 10)) { // 10ms debounce timer    
-      button_state = true;
-      button_pressed = true;
-    }
-  } else if ((PCintPort::pinState == LOW) && (button_state == true)) {
-    // Button was down, but has just been released  
-    // Discard button releases too close together (debounce)
-    end = millis();
-    if (end > (start + 10)) { // 10ms debounce timer    
-      button_state = false;
-      button_released = true;
-      button_downtime = end - start;
-    }
   }
 }
 
