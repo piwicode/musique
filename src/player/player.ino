@@ -127,10 +127,10 @@ SFEMP3Shield MP3player;
 SdFat sd;
 
 void initializeSerialDebugging() {
-  //if(SERIAL_DEBUG_ENABLED) {
+  if(SERIAL_DEBUG_ENABLED) {
     Serial.begin(9600);
     Serial.println(F("=*=*=*= Musique player =*=*=*="));
-  //}
+  }
 }
 
 int fetchAndClearRotaryCounter() {
@@ -245,22 +245,26 @@ int BinaryToGrey(int b){ return (b >> 1) ^ b; }
 class PushButton {
   public:
   // Time at which the position changed.
-  unsigned long int last_position_change_time;
+  unsigned long int pressed_time;
+  unsigned long int released_time;
   // Value in milliseconds equals to 0 when the button is released, and to DEFLAKE_DURATION when it is pressed.
   short button_accumulator;
   // Deflaked position of the button. True when the button is considered to be pressed.
   bool is_down;
   // Set to true as soon as the button is pressed, to be consumed.
-  bool pressed_event;  
+  bool pressed_event;
+  bool release_event;
   
   const byte trigger;
   const unsigned char pressed_digital_value;
     
   PushButton(byte trigger, unsigned char pressed_digital_value):
-    last_position_change_time(millis()),
+    pressed_time(millis()),
+    released_time(millis()),
     button_accumulator(0),
     is_down(false),
     pressed_event(false),
+    release_event(false),
     trigger(trigger),
     pressed_digital_value(pressed_digital_value)
       {}
@@ -274,25 +278,27 @@ class PushButton {
     if(is_down) {
       if(button_accumulator == 0) {
         is_down = false;        
-        last_position_change_time = now;
-        pressed_event = true;
+        released_time = now;
+        release_event = true;        
       }
     } else {
       if(button_accumulator == DEFLAKE_DURATION) {
         is_down = true;
-        last_position_change_time = now;
+        pressed_time = now;
+        pressed_event = true;
       }
     }  
   }
 };
 
-class Facade {
-  PushButton rotary;
+class Facade {  
   PushButton buttons[4];
   unsigned long int last_time;
   byte trigger_count; 
   
   public:
+    PushButton rotary;
+
     Facade():
     rotary(ROT_SW, HIGH),
     buttons({PushButton(TRIG2, LOW), PushButton(TRIG3, LOW), PushButton(TRIG4, LOW), PushButton(TRIG5, LOW)}),
@@ -312,10 +318,10 @@ class Facade {
   }
 
   bool ShutDownPressed() {
-    return rotary.is_down && millis() - rotary.last_position_change_time > SHUT_DOWN_BUTTON_DURATION;
+    return rotary.is_down && millis() - rotary.pressed_time > SHUT_DOWN_BUTTON_DURATION;
   }
   bool VolumeControlePressed() {
-    return rotary.is_down && millis() - rotary.last_position_change_time > VOLUME_CONTROL_DELAY;
+    return rotary.is_down && millis() - rotary.pressed_time > VOLUME_CONTROL_DELAY;
   }
   int NextPressEvent() {
     for(int b = 0 ; b < trigger_count ; b++) {
@@ -548,9 +554,15 @@ void loop() {
     if(millis() - last_rotary_event > 10000) {
       LOG(F("Exit volume control mode"));
       volume_control_mode = false;
-    }   
+    }    
   }
-
+  if(facade.rotary.release_event) {
+    facade.rotary.release_event = false;
+    if(last_rotary_event && (millis() - facade.rotary.pressed_time < 600)) {
+      LOG(F("Exit volume control mode"));
+      volume_control_mode = false;
+    }
+  }
   if (playing && !MP3player.isPlaying()) {
     LOG(F("Track is over."));
     if(file_browser.IsLastTrackOfAlbum()) {
@@ -562,9 +574,8 @@ void loop() {
     }
   }
 
-  if(volume_control_mode) {
-    int off = ((millis() >> 7) & 1);    
-    setLEDColor(off ? 0 : CYAN);
+  if(volume_control_mode) {    
+    setLEDColor(CYAN);
   } else {
     if(!playing) {
       unsigned long duration = millis() - stopped_playing_at;
