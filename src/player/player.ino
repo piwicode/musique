@@ -72,7 +72,7 @@
 #define WHITE B000
 
 // Duration of innactivity after which one the player auto switches of.
-#define SWITCH_OFF_DELAY 5000
+#define SWITCH_OFF_DELAY 20000
 
 #define SERIAL_DEBUG_ENABLED 1
 
@@ -149,7 +149,11 @@ void initializePowerControlPin() {
   digitalWrite(TRIG1, LOW);
 }
 void switchOff() {
+    LOG("Auto switch off");
     digitalWrite(TRIG1, HIGH);
+    delay(500);
+    digitalWrite(TRIG1, LOW);
+    delay(500);
 }
 void initializePushButtons() {  
   LOG(F("Configure push buttons IO...")); 
@@ -220,7 +224,7 @@ void initializeMP3Library() {
   // Turn on the amplifier chip:
   digitalWrite(EN_GPIO1,HIGH);  
 }
-byte button_colors[] = {BLUE, YELLOW, RED, GREEN};
+byte genre_colors[] = {OFF, BLUE, YELLOW, RED, GREEN};
 int BinaryToGrey(int b){ return (b >> 1) ^ b; }
 
 #define DEFLAKE_DURATION 50
@@ -377,7 +381,7 @@ class FileBrowser {
   
   public:
   FileBrowser(): 
-    current_genre(-1), 
+    current_genre(0), 
     albums{},
     tracks{}, 
     nb_album(0), 
@@ -419,7 +423,7 @@ class FileBrowser {
 
   int CurrentGenre() {return current_genre;}
   void NextTrack(bool backward=false) {    
-    if(current_genre == -1) {
+    if(current_genre == 0) {
       NotifyGenre(1, backward);
       return;
     }
@@ -539,10 +543,12 @@ void loop() {
     }
   }
 
+
   if(playing) {
-    bool on = (millis() >> 8)&&3 == 0;
-    setLEDColor(on ? YELLOW: OFF);
+    int off = ((millis() >> 8) & 3);    
+    setLEDColor(off ? OFF : genre_colors[file_browser.CurrentGenre()]);
   }
+  
 
   if(facade.ShutDownPressed()) {
     switchOff();
@@ -555,19 +561,21 @@ void stopPlaying() {
 }
 
 void startPlaying() {
+  setLEDColor(WHITE);
   char* path = file_browser.GetPath();
   LOG(F("Start playing file"), path);  
   byte result = MP3player.playMP3(path);
   playing = true;
   LOG(F("Playback returned with"), result);
+  setLEDColor(OFF);
 }
 
 // Sets the RGB LED in the rotary encoder to a specific color. See the color
 // code defined at the start of this sketch.
 void setLEDColor(unsigned char color) {  
-  digitalWrite(ROT_LEDR,color & B001);
-  digitalWrite(ROT_LEDG,color & B010);
-  digitalWrite(ROT_LEDB,color & B100);  
+  digitalWrite(ROT_LEDR, color & B001);
+  digitalWrite(ROT_LEDG, color & B010);
+  digitalWrite(ROT_LEDB, color & B100);  
 }
 
 // Blink the RGB LED in the rotary encoder a given number of times and repeats
