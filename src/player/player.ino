@@ -238,8 +238,9 @@ void initializeMP3Library() {
   
   // Set the VS1053 volume. 0 is loudest, 255 is lowest (off):
   MP3player.setVolume(volume, volume);
-  // Cargo cult of of the Lilipad samples.
+  // Cargo cult inspired by the Lilipad code samples.
   delay(2);
+  ampOn();
 }
 byte genre_colors[] = {OFF, BLUE, YELLOW, RED, GREEN};
 int BinaryToGrey(int b){ return (b >> 1) ^ b; }
@@ -515,9 +516,9 @@ void setup() {
   initializeLeds();
   initializeSerialDebugging();  
   initializePushButtons();
-  initializeRotary();  
+  initializeRotary();
   initializeSDCard();
-  initializeMP3Library();    
+  initializeMP3Library(); 
   initializePlayerState();
   LOG(F("Ready!"));  
 }
@@ -609,13 +610,11 @@ void loop() {
 }
 
 void stopPlaying() {
-  LOG(F("Stopping playback"));
-  ampOff();
+  LOG(F("Stopping playback"));  
   MP3player.stopTrack();  
 }
 
-void startPlaying() {
-  ampOn();
+void startPlaying() {  
   setLEDColor(WHITE);
   char* path = file_browser.GetPath();
   LOG(F("Start playing file"), path);  
