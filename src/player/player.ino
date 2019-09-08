@@ -30,36 +30,22 @@
 // serial monitoring will be disabled.
 #define TRIG5 0
 
-
 // Rotary leds Red Green and Blue.
 #define ROT_LEDR 10
 #define ROT_LEDG A1
 #define ROT_LEDB 5
-
 // Rotary coder channels
 #define ROT_B A3
 #define ROT_A 3
-
 // Rotary pushbutton
 #define ROT_SW 4
 
 // Amp enable + MIDI/MP3 mode select
 #define EN_GPIO1 A2
 
-#define RIGHT A6
-#define LEFT A7
-#define MP3_DREQ 2
-
-#define MP3_CS 6
-#define MP3_DCS 7
-#define MP3_RST 8
 #define SD_CS 9
-#define MOSI 11
-#define MISO 12
-#define SCK 13
 
 // RGB LED colors (for common anode LED, 0 is on, 1 is off)
-
 #define OFF B111
 #define RED B110
 #define GREEN B101
@@ -108,10 +94,6 @@ do {if(!(cond)) {LOG(F("Check failed"), F(#cond)); fatalErrorBlink(3, RED);}} wh
 // Global variables and flags for interrupt request functions:
 volatile unsigned long last_rotary_event = 0L;
 volatile int rotary_counter = 0; // Current "position" of rotary encoder (increments CW) 
-
-volatile boolean button_pressed = false; // Will turn true if the button has been pushed
-volatile boolean button_released = false; // Will turn true if the button has been released (sets button_downtime)
-volatile unsigned long button_downtime = 0L; // ms the button was pushed before release
 
 static bool volume_control_mode = false;
 static int volume = 32+16;
