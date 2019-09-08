@@ -157,7 +157,7 @@ void switchOff() {
       MP3player.setVolume(volume, volume);
       delay(10);
     }    
-    ampOff();  // Switch off amp.
+    AmpOff();  // Switch off amp.
     digitalWrite(TRIG1, HIGH);  // Switch power off.
     fatalErrorBlink(1, BLUE);  // Wait forever.
 }
@@ -203,12 +203,12 @@ void initializeChips() {
   digitalWrite(EN_GPIO1, LOW);  // MP3 mode / amp off
 }
 
-void ampOff() {
+void AmpOff() {
   // Turn off the amplifier chip:
   LOG(F("Amp off"));
   digitalWrite(EN_GPIO1, LOW);  
 }
-void ampOn() {
+void AmpOn() {
   // Turn on the amplifier chip:
   LOG(F("Amp on"));
   digitalWrite(EN_GPIO1, HIGH);  
@@ -240,7 +240,7 @@ void initializeMP3Library() {
   MP3player.setVolume(volume, volume);
   // Cargo cult inspired by the Lilipad code samples.
   delay(2);
-  ampOn();
+  AmpOn();
 }
 byte genre_colors[] = {OFF, BLUE, YELLOW, RED, GREEN};
 int BinaryToGrey(int b){ return (b >> 1) ^ b; }
