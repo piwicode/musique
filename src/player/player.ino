@@ -56,7 +56,7 @@
 #define WHITE B000
 
 // Duration of innactivity after which one the player auto switches of.
-#define SWITCH_OFF_DELAY 20000
+#define AUTO_SWITCH_OFF_DELAY 20000
 
 #define SERIAL_DEBUG_ENABLED 0
 
@@ -140,7 +140,7 @@ void switchOff() {
     }    
     AmpOff();  // Switch off amp.    
     setLEDColor(OFF); // Fake being switched off.
-    delay(300); // Wait for the map cricuit de disipate the enery.
+    delay(2000); // Wait for the map cricuit de disipate the enery.
     digitalWrite(TRIG1, HIGH);  // Switch power off.
     delay(100);
     fatalErrorBlink(1, BLUE);  // Wait forever.
@@ -231,7 +231,7 @@ int BinaryToGrey(int b){ return (b >> 1) ^ b; }
 
 #define DEFLAKE_DURATION 100
 #define NOTHING_PRESSED -1
-#define SHUT_DOWN_BUTTON_DURATION 2000
+#define SWITCH_OFF_BUTTON_DURATION 2000
 
   
 class PushButton {
@@ -307,10 +307,6 @@ class Facade {
       }
     }
     last_time = now;          
-  }
-
-  bool ShutDownPressed() {
-    return rotary.is_down && millis() - rotary.pressed_time > SHUT_DOWN_BUTTON_DURATION;
   }
 
   int NextPressedEvent() {
@@ -571,19 +567,19 @@ void loop() {
   } else {
     if(!playing) {
       unsigned long duration = millis() - stopped_playing_at;
-      setLEDColor(BinaryToGrey((duration >> 8)&7)); // Blink
-      if( duration > SWITCH_OFF_DELAY ) {
-        switchOff();
-      }
-    }
-  
-    if(playing) {
+      setLEDColor(BinaryToGrey((duration >> 8)&7)); // Blink      
+    } else {
       int off = ((millis() >> 8) & 3);    
       setLEDColor(off ? OFF : genre_colors[file_browser.CurrentGenre()]);
     }
   }
-  
-  if(facade.ShutDownPressed()) {
+
+  // Auto power off after being idle.
+  if(!playing &&  (millis() - stopped_playing_at > AUTO_SWITCH_OFF_DELAY)) {
+    switchOff();
+  }
+  // Manual power off.
+  if(facade.rotary.is_down && millis() - facade.rotary.pressed_time > SWITCH_OFF_BUTTON_DURATION) {
     switchOff();
   }
 }
