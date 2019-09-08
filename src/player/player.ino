@@ -109,7 +109,6 @@ do {if(!(cond)) {LOG(F("Check failed"), F(#cond)); fatalErrorBlink(3, RED);}} wh
 // Global variables and flags for interrupt request functions:
 volatile unsigned long last_rotary_event = 0L;
 volatile int rotary_counter = 0; // Current "position" of rotary encoder (increments CW) 
-volatile unsigned char rotary_state = 0xff; // Current and previous encoder states
 
 volatile boolean button_pressed = false; // Will turn true if the button has been pushed
 volatile boolean button_released = false; // Will turn true if the button has been released (sets button_downtime)
@@ -675,6 +674,9 @@ void rotaryIRQ() {
   // Unlike Oleg's original code, this code uses only one interrupt and
   // has only two transition states; it has less resolution but needs only
   // one interrupt, is very smooth, and handles switchbounce well.
+
+  static volatile unsigned char rotary_state = 0xff; // Current (0x3) and previous (0xC) encoder states
+  
   bool first = rotary_state == 0xff;
   rotary_state <<= 2;  // Remember previous state
   rotary_state |= (digitalRead(ROT_A) | (digitalRead(ROT_B) << 1));  // Mask in current state
