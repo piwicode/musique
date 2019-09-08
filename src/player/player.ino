@@ -71,7 +71,6 @@
 
 // Duration of innactivity after which one the player auto switches of.
 #define SWITCH_OFF_DELAY 20000
-#define VOLUME_CONTROL_DELAY 1500
 
 #define SERIAL_DEBUG_ENABLED 0
 
@@ -328,9 +327,7 @@ class Facade {
   bool ShutDownPressed() {
     return rotary.is_down && millis() - rotary.pressed_time > SHUT_DOWN_BUTTON_DURATION;
   }
-  bool VolumeControlePressed() {
-    return rotary.is_down && millis() - rotary.pressed_time > VOLUME_CONTROL_DELAY;
-  }
+
   int NextPressEvent() {
     for(int b = 0 ; b < trigger_count ; b++) {
       if(buttons[b].release_event){
@@ -557,19 +554,21 @@ void loop() {
     }
   }
 
-  if(volume_control_mode) {
-    if(millis() - last_rotary_event > 10000) {
-      LOG(F("Exit volume control mode"));
-      volume_control_mode = false;
-    }    
+  // On rotery press, toggle volume control mode on and off. 
+  if(facade.rotary.pressed_event) {
+    facade.rotary.pressed_event = false;
+    last_rotary_event = millis();
+    volume_control_mode = !volume_control_mode;
+    LOG(F("volume_control_mode"), volume_control_mode);    
   }
-  if(facade.rotary.release_event) {
-    facade.rotary.release_event = false;
-    if(last_rotary_event && (millis() - facade.rotary.pressed_time < 600)) {
-      LOG(F("Exit volume control mode"));
-      volume_control_mode = false;
-    }
+
+  // Auto exit from volume control mode after a fixed delay.
+  if(volume_control_mode && (millis() - last_rotary_event > 10000)) {
+    LOG(F("Exit volume control mode"));
+    volume_control_mode = false;    
   }
+
+  
   if (playing && !MP3player.isPlaying()) {
     LOG(F("Track is over."));
     stopPlaying();
@@ -599,11 +598,6 @@ void loop() {
     }
   }
   
-  if(facade.VolumeControlePressed()) {
-    LOG(F("Enter volume control mode"));
-    last_rotary_event = millis();
-    volume_control_mode = true;
-  }
   if(facade.ShutDownPressed()) {
     switchOff();
   }
