@@ -71,7 +71,7 @@
 
 // Duration of innactivity after which one the player auto switches of.
 #define SWITCH_OFF_DELAY 20000
-#define VOLUME_CONTROL_DELAY 2000
+#define VOLUME_CONTROL_DELAY 1500
 
 #define SERIAL_DEBUG_ENABLED 0
 
