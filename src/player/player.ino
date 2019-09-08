@@ -70,7 +70,7 @@
 #define WHITE B000
 
 // Duration of innactivity after which one the player auto switches of.
-#define SWITCH_OFF_DELAY 3000
+#define SWITCH_OFF_DELAY 20000
 
 #define SERIAL_DEBUG_ENABLED 0
 
@@ -156,8 +156,11 @@ void switchOff() {
       MP3player.setVolume(volume, volume);
       delay(10);
     }    
-    AmpOff();  // Switch off amp.
+    AmpOff();  // Switch off amp.    
+    setLEDColor(OFF); // Fake being switched off.
+    delay(300); // Wait for the map cricuit de disipate the enery.
     digitalWrite(TRIG1, HIGH);  // Switch power off.
+    delay(100);
     fatalErrorBlink(1, BLUE);  // Wait forever.
 }
 
@@ -246,7 +249,7 @@ int BinaryToGrey(int b){ return (b >> 1) ^ b; }
 
 #define DEFLAKE_DURATION 100
 #define NOTHING_PRESSED -1
-#define SHUT_DOWN_BUTTON_DURATION 3000
+#define SHUT_DOWN_BUTTON_DURATION 2000
 
   
 class PushButton {
