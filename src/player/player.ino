@@ -70,7 +70,7 @@
 #define WHITE B000
 
 // Duration of innactivity after which one the player auto switches of.
-#define SWITCH_OFF_DELAY 20000
+#define SWITCH_OFF_DELAY 3000
 
 #define SERIAL_DEBUG_ENABLED 0
 
