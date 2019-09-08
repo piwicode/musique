@@ -313,10 +313,10 @@ class Facade {
     return rotary.is_down && millis() - rotary.pressed_time > SHUT_DOWN_BUTTON_DURATION;
   }
 
-  int NextPressEvent() {
+  int NextPressedEvent() {
     for(int b = 0 ; b < trigger_count ; b++) {
-      if(buttons[b].release_event){
-        buttons[b].release_event = false;
+      if(buttons[b].pressed_event){
+        buttons[b].pressed_event = false;
         return b;
       }
     }
@@ -509,7 +509,7 @@ void setup() {
 void loop() {
   facade.Poll();
 
-  int press_event = facade.NextPressEvent();
+  int press_event = facade.NextPressedEvent();
   if(press_event != NOTHING_PRESSED) {
     LOG(F("Button"), press_event, F("pressed."));
     // Before switching to a new audio file, we MUST
