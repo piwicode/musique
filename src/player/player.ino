@@ -3,6 +3,7 @@
 #include <SFEMP3Shield.h>   // MP3 decoder chip
 #include <PinChangeInt.h>
 #include <util/atomic.h>
+#include "simon_sequence.h"
 
 // Trigger and IO
 
@@ -129,15 +130,19 @@ void initializePowerControlPin() {
   digitalWrite(TRIG1, LOW);
 }
 
+void fadeVolumeOut() {
+  int current_volume = volume;
+  while (current_volume < 255) {
+    current_volume = min(current_volume + 4, 255);
+    MP3player.setVolume(current_volume, current_volume);
+    delay(10);
+  }
+}
+
 void switchOff() {
   LOG("Auto switch off");
   setLEDColor(BLUE);
-  // Fade out.
-  while (volume < 255) {
-    volume = min(volume + 4, 255);
-    MP3player.setVolume(volume, volume);
-    delay(10);
-  }
+  fadeVolumeOut();
   AmpOff();  // Switch off amp.
   setLEDColor(OFF); // Fake being switched off.
   delay(2000); // Wait for the map cricuit de disipate the enery.
@@ -192,6 +197,7 @@ void AmpOff() {
   LOG(F("Amp off"));
   digitalWrite(EN_GPIO1, LOW);
 }
+
 void AmpOn() {
   // Turn on the amplifier chip:
   LOG(F("Amp on"));
@@ -226,6 +232,7 @@ void initializeMP3Library() {
   delay(2);
   AmpOn();
 }
+
 byte genre_colors[] = {OFF, BLUE, YELLOW, RED, GREEN};
 int BinaryToGrey(int b) {
   return (b >> 1) ^ b;
@@ -311,6 +318,10 @@ class Facade {
         }
       }
       last_time = now;
+    }
+
+    bool IsSimonCombinationPressed() {
+      return (buttons[0].is_down + buttons[1].is_down + buttons[2].is_down + buttons[3].is_down) >= 2;
     }
 
     int NextPressedEvent() {
@@ -412,11 +423,9 @@ class FileBrowser {
     void NextAlbum(bool backward = false) {
       LOG(F("NextAlbum backward="), backward);
       cur_album += backward ? -1 : 1;
-      if (cur_album < 0) {
-        cur_album = nb_album - 1;
-      }
-      if (cur_album >= nb_album) {
-        cur_album = 0;
+      if (cur_album < 0 || cur_album >= nb_album) {
+        int new_genre = ((current_genre - 1 + 4 + (backward ? -1 : 1) ) % 4) + 1;
+        NotifyGenre(new_genre, backward);
       }
     }
 
@@ -449,6 +458,7 @@ class FileBrowser {
         album_dir.close();
       }
     }
+
     bool IsLastTrackOfAlbum() {
       return cur_track + 1 >= nb_track;
     }
@@ -456,6 +466,7 @@ class FileBrowser {
     int CurrentGenre() {
       return current_genre;
     }
+
     void NextTrack(bool backward = false) {
       if (current_genre == 0) {
         NotifyGenre(1, backward);
@@ -535,10 +546,76 @@ void setup() {
   LOG(F("Ready!"));
 }
 
+void playAndWait(const char* path) {
+  byte result = MP3player.playMP3(path);
+  LOG(F("Playback returned with"), result);
+  while (MP3player.isPlaying()) {
+    delay(4);
+  }
+}
+
+void playSimponSound(byte index) {
+  char* file = "/simpon/1.mp3";
+  file[8] += index;
+  playAndWait(file);
+}
+
+void playSimponSequence(SimonSequence& sequence) {
+  for (int i = 0 ; i < sequence.size() ; i++) {
+    playSimponSound(sequence.get(i));
+  }
+}
+
+byte waitForEventOrShutdown() {
+  unsigned long auto_sutdown_time = millis() + AUTO_SWITCH_OFF_DELAY;
+  int press_event = NOTHING_PRESSED;
+  while (millis() < auto_sutdown_time) {
+    facade.Poll();
+    press_event = facade.NextPressedEvent();
+    if (press_event != NOTHING_PRESSED) {
+      return press_event;
+    }
+    // Manual power off.
+    if (facade.rotary.is_down && millis() - facade.rotary.pressed_time > SWITCH_OFF_BUTTON_DURATION) {
+      switchOff();
+    }
+    delay(4);
+  }
+  switchOff();
+}
+
+bool processInputSequenceOrShutdown(SimonSequence &sequence) {
+  unsigned long start_waiting = millis();
+  int press_event = NOTHING_PRESSED;
+  for (int i = 0 ; i < sequence.size() ; i++) {
+    byte event = waitForEventOrShutdown();
+    playSimponSound(event);
+    if (event != sequence.get(i)) return false;
+  }
+  return true;
+}
+
+void playSimon() {
+  fadeVolumeOut();
+  stopPlaying();
+  MP3player.setVolume(volume, volume);
+  playAndWait("/simon/intro.mp3");
+  SimonSequence sequence;
+  bool is_correct = true;
+  while (is_correct) {
+    sequence.add(random(0, 4));
+    playSimponSequence(sequence);
+    is_correct = processInputSequenceOrShutdown(sequence);
+  }
+  playAndWait("/simon/outro.mp3");
+}
 
 void loop() {
   facade.Poll();
 
+  if ( facade.IsSimonCombinationPressed()) {
+    playSimon();
+  }
   int press_event = facade.NextPressedEvent();
   if (press_event != NOTHING_PRESSED) {
     LOG(F("Button"), press_event, F("pressed."));
@@ -556,7 +633,7 @@ void loop() {
     last_rotary_event = millis();
     LOG(F("Rotary moved by"), rotary_events);
     if (volume_control_mode) {
-      volume = min(90, max(16, volume - 4 * rotary_events));
+      volume = min(104, max(16, volume - 4 * rotary_events));
       LOG(F("Change volume to"), volume);
       MP3player.setVolume(volume, volume);
     } else {
@@ -573,7 +650,7 @@ void loop() {
     }
   }
 
-  // On rotery press, toggle volume control mode on and off.
+  // On rotary press, toggle volume control mode on and off.
   if (facade.rotary.pressed_event) {
     facade.rotary.pressed_event = false;
     last_rotary_event = millis();
@@ -586,7 +663,6 @@ void loop() {
     LOG(F("Exit volume control mode"));
     volume_control_mode = false;
   }
-
 
   if (playing && !MP3player.isPlaying()) {
     LOG(F("Track is over."));
