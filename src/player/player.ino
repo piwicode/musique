@@ -133,7 +133,7 @@ void initializePowerControlPin() {
 void fadeVolumeOut() {
   int current_volume = volume;
   while (current_volume < 255) {
-    current_volume = min(current_volume + 4, 255);
+    current_volume = min(current_volume + 8, 255);
     MP3player.setVolume(current_volume, current_volume);
     delay(10);
   }
@@ -551,13 +551,16 @@ void playAndWait(const char* path) {
   LOG(F("Playback returned with"), result);
   while (MP3player.isPlaying()) {
     delay(4);
+    facade.Poll();
   }
 }
 
 void playSimponSound(byte index) {
-  char* file = "/simpon/1.mp3";
-  file[8] += index;
+  char* file = "/simon/1.mp3";
+  file[7] = '1' + index;
+  setLEDColor(genre_colors[index + 1]);
   playAndWait(file);
+  setLEDColor(OFF);
 }
 
 void playSimponSequence(SimonSequence& sequence) {
@@ -566,7 +569,7 @@ void playSimponSequence(SimonSequence& sequence) {
   }
 }
 
-byte waitForEventOrShutdown() {
+byte waitForEventOrShutdown() {  
   unsigned long auto_sutdown_time = millis() + AUTO_SWITCH_OFF_DELAY;
   int press_event = NOTHING_PRESSED;
   while (millis() < auto_sutdown_time) {
@@ -596,10 +599,17 @@ bool processInputSequenceOrShutdown(SimonSequence &sequence) {
 }
 
 void playSimon() {
+  setLEDColor(WHITE);
   fadeVolumeOut();
   stopPlaying();
   MP3player.setVolume(volume, volume);
+  
+  // Clear previous events.
+  while (facade.NextPressedEvent() != NOTHING_PRESSED);
+  
   playAndWait("/simon/intro.mp3");
+  setLEDColor(OFF);
+  
   SimonSequence sequence;
   bool is_correct = true;
   while (is_correct) {
@@ -607,13 +617,13 @@ void playSimon() {
     playSimponSequence(sequence);
     is_correct = processInputSequenceOrShutdown(sequence);
   }
-  playAndWait("/simon/outro.mp3");
+  playAndWait("/simon/lose.mp3");
 }
 
 void loop() {
   facade.Poll();
 
-  if ( facade.IsSimonCombinationPressed()) {
+  if (facade.IsSimonCombinationPressed()) {
     playSimon();
   }
   int press_event = facade.NextPressedEvent();
